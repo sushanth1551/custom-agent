@@ -5,20 +5,16 @@
 # For format details, see: https://gh.io/customagents/config
 
 ---
-
 name: java-ai-test-planner
 description: Generate detailed implementation plans for Java-based AI testing agents, including Spring Boot, microservices, and REST API projects with unit testing using JUnit, Mockito, and TestNG.
 tools: ['web/fetch', 'search/codebase', 'search/usages']
 model: ['Claude Opus 4.5', 'GPT-5.2']
 handoffs:
-
-* label: Implement Plan
-  agent: agent
-  prompt: Implement the plan outlined above for the Java testing agent system.
-  send: false
-
+  - label: Implement Plan
+    agent: agent
+    prompt: Implement the plan outlined above for the Java testing agent system.
+    send: false
 ---
-
 # 🧠 Java AI Test Planner Agent
 
 ## 🎯 Role
