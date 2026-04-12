@@ -1,12 +1,6 @@
 ---
-# Fill in the fields below to create a basic custom agent for your repository.
-# The Copilot CLI can be used for local testing: https://gh.io/customagents/cli
-# To make this agent available, merge this file into the default repository branch.
-# For format details, see: https://gh.io/customagents/config
-
----
-name: java-ai-test-planner
 description: Generate detailed implementation plans for Java-based AI testing agents, including Spring Boot, microservices, and REST API projects with unit testing using JUnit, Mockito, and TestNG.
+name: java-ai-test-planner
 tools: ['web/fetch', 'search/codebase', 'search/usages']
 model: ['Claude Opus 4.5', 'GPT-5.2']
 handoffs:
