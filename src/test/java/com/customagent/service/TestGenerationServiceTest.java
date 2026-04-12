@@ -107,6 +107,49 @@ class TestGenerationServiceTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Method names");
         }
+
+        @Test
+        @DisplayName("template should contain '_shouldSucceed' stub for each method")
+        void withValidInputs_templateShouldContainSucceedSuffix() {
+            String template = service.generateTestTemplate("MyService", List.of("doWork"));
+
+            assertThat(template).contains("doWork_shouldSucceed");
+        }
+
+        @Test
+        @DisplayName("template should contain Arrange / Act / Assert scaffold comments")
+        void withValidInputs_templateShouldContainAAAComments() {
+            String template = service.generateTestTemplate("FooService", List.of("execute"));
+
+            assertThat(template).contains("// Arrange");
+            assertThat(template).contains("// Act");
+            assertThat(template).contains("// Assert");
+        }
+
+        @Test
+        @DisplayName("should produce exactly one @Test stub per supplied method name")
+        void withMultipleMethods_shouldProduceOneStubPerMethod() {
+            List<String> methods = List.of("alpha", "beta", "gamma");
+            String template = service.generateTestTemplate("MultiService", methods);
+
+            long testCount = template.lines()
+                    .filter(l -> l.trim().equals("@Test"))
+                    .count();
+
+            assertThat(testCount).isEqualTo(methods.size());
+        }
+
+        @Test
+        @DisplayName("single-method list (boundary) should generate exactly one stub")
+        void withSingleMethod_shouldGenerateOneTestStub() {
+            String template = service.generateTestTemplate("SingleService", List.of("onlyMethod"));
+
+            assertThat(template).contains("onlyMethod_shouldSucceed");
+            long testCount = template.lines()
+                    .filter(l -> l.trim().equals("@Test"))
+                    .count();
+            assertThat(testCount).isEqualTo(1);
+        }
     }
 
     // =========================================================================
@@ -178,6 +221,83 @@ class TestGenerationServiceTest {
 
             assertThatThrownBy(() -> result.add("hack"))
                     .isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @Test
+        @DisplayName("should exclude public methods preceded by @ParameterizedTest")
+        void withParameterizedTestAnnotation_shouldExcludeFromUncovered() {
+            String source = String.join("\n",
+                    "class FooTest {",
+                    "    @ParameterizedTest",
+                    "    public void paramTest(String val) {}",
+                    "}");
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered).doesNotContain("paramTest");
+        }
+
+        @Test
+        @DisplayName("should exclude public methods preceded by @RepeatedTest")
+        void withRepeatedTestAnnotation_shouldExcludeFromUncovered() {
+            String source = String.join("\n",
+                    "class FooTest {",
+                    "    @RepeatedTest(3)",
+                    "    public void repeatedCase() {}",
+                    "}");
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered).doesNotContain("repeatedCase");
+        }
+
+        @Test
+        @DisplayName("should NOT include private methods in the uncovered list")
+        void withPrivateMethods_shouldNotBeIncluded() {
+            String source = String.join("\n",
+                    "class Bar {",
+                    "    private String helper() { return null; }",
+                    "}");
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered).doesNotContain("helper");
+        }
+
+        @Test
+        @DisplayName("should NOT count public class declarations as uncovered methods")
+        void withPublicClassDeclaration_shouldNotBeCountedAsMethod() {
+            String source = "public class MyService {}";
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered).doesNotContain("MyService");
+        }
+
+        @Test
+        @DisplayName("should NOT count comment lines containing 'public' as methods")
+        void withPublicKeywordInLineComment_shouldNotBeCountedAsMethod() {
+            String source = String.join("\n",
+                    "class Foo {",
+                    "    // public void commentedOut() {}",
+                    "    public void realMethod() {}",
+                    "}");
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered)
+                    .contains("realMethod")
+                    .doesNotContain("commentedOut");
+        }
+
+        @Test
+        @DisplayName("public method on first line has no preceding annotation and is uncovered")
+        void whenPublicMethodIsOnFirstLine_shouldBeUncovered() {
+            String source = "public void topLevelMethod() {}";
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered).contains("topLevelMethod");
         }
     }
 
@@ -256,6 +376,40 @@ class TestGenerationServiceTest {
 
             assertThatThrownBy(() -> stats.put("extra", 1))
                     .isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @Test
+        @DisplayName("keyword matching should be case-insensitive (e.g. 'ERROR', 'EXCEPTION')")
+        void withUpperCaseKeywords_shouldStillClassifyAsErrorScenarios() {
+            List<String> methods = List.of(
+                    "whenERROR_shouldHandle",
+                    "testWithEXCEPTION",
+                    "handleNULL_input");
+
+            Map<String, Integer> stats = service.calculateTestStats(methods);
+
+            assertThat(stats.get("total")).isEqualTo(3);
+            assertThat(stats.get("errorScenarios")).isEqualTo(3);
+            assertThat(stats.get("happyPath")).isZero();
+        }
+
+        @Test
+        @DisplayName("single happy-path element should yield total=1, happy=1, errors=0")
+        void withSingleHappyPathMethod_shouldReturnCorrectStats() {
+            Map<String, Integer> stats =
+                    service.calculateTestStats(List.of("shouldCreateUserSuccessfully"));
+
+            assertThat(stats.get("total")).isEqualTo(1);
+            assertThat(stats.get("happyPath")).isEqualTo(1);
+            assertThat(stats.get("errorScenarios")).isZero();
+        }
+
+        @Test
+        @DisplayName("returned map should always contain all three expected keys")
+        void shouldAlwaysContainAllExpectedKeys() {
+            Map<String, Integer> stats = service.calculateTestStats(List.of("someTest"));
+
+            assertThat(stats).containsKeys("total", "happyPath", "errorScenarios");
         }
     }
 }

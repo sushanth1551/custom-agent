@@ -237,6 +237,40 @@ class AgentServiceTest {
             assertThatThrownBy(() -> agentService.updateAgent(99L, buildRequest("X")))
                     .isInstanceOf(AgentNotFoundException.class);
         }
+
+        @Test
+        @DisplayName("should default tools to empty list when update request has null tools")
+        void whenToolsAreNull_shouldDefaultToEmptyList() {
+            Agent existing = buildAgent(1L, "MyAgent", AgentStatus.ACTIVE);
+            AgentRequest request = new AgentRequest("MyAgent", "Updated desc", null);
+
+            when(agentRepository.findById(1L)).thenReturn(Optional.of(existing));
+            when(agentRepository.save(any(Agent.class))).thenAnswer(inv -> inv.getArgument(0));
+
+            Agent result = agentService.updateAgent(1L, request);
+
+            assertThat(result.getTools()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should persist updated fields via save and return the saved entity")
+        void whenUpdateIsValid_shouldPersistAllUpdatedFields() {
+            Agent existing = buildAgent(3L, "OldName", AgentStatus.ACTIVE);
+            AgentRequest request = new AgentRequest("NewName", "New desc", List.of("search", "write"));
+
+            when(agentRepository.findById(3L)).thenReturn(Optional.of(existing));
+            when(agentRepository.existsByName("NewName")).thenReturn(false);
+            when(agentRepository.save(any(Agent.class))).thenAnswer(inv -> inv.getArgument(0));
+
+            agentService.updateAgent(3L, request);
+
+            ArgumentCaptor<Agent> captor = ArgumentCaptor.forClass(Agent.class);
+            verify(agentRepository).save(captor.capture());
+            Agent saved = captor.getValue();
+            assertThat(saved.getName()).isEqualTo("NewName");
+            assertThat(saved.getDescription()).isEqualTo("New desc");
+            assertThat(saved.getTools()).containsExactly("search", "write");
+        }
     }
 
     // =========================================================================
@@ -314,6 +348,32 @@ class AgentServiceTest {
 
             assertThatThrownBy(() -> agentService.deactivateAgent(2L))
                     .isInstanceOf(AgentNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("activateAgent should be idempotent when agent is already ACTIVE")
+        void activateAgent_whenAlreadyActive_shouldSetActiveAndSave() {
+            Agent agent = buildAgent(3L, "AlreadyActive", AgentStatus.ACTIVE);
+            when(agentRepository.findById(3L)).thenReturn(Optional.of(agent));
+            when(agentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            Agent result = agentService.activateAgent(3L);
+
+            assertThat(result.getStatus()).isEqualTo(AgentStatus.ACTIVE);
+            verify(agentRepository).save(agent);
+        }
+
+        @Test
+        @DisplayName("deactivateAgent should be idempotent when agent is already INACTIVE")
+        void deactivateAgent_whenAlreadyInactive_shouldSetInactiveAndSave() {
+            Agent agent = buildAgent(4L, "AlreadyInactive", AgentStatus.INACTIVE);
+            when(agentRepository.findById(4L)).thenReturn(Optional.of(agent));
+            when(agentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            Agent result = agentService.deactivateAgent(4L);
+
+            assertThat(result.getStatus()).isEqualTo(AgentStatus.INACTIVE);
+            verify(agentRepository).save(agent);
         }
     }
 }
