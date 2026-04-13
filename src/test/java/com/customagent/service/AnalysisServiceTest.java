@@ -118,6 +118,26 @@ class AnalysisServiceTest {
 
             verify(reportRepository, never()).save(any());
         }
+
+        @Test
+        @DisplayName("saved report should carry the resolved agent's id")
+        void whenAgentIsActive_savedReportShouldCarryAgentId() {
+            Agent agent = activeAgent(7L);
+            AnalysisRequest request = new AnalysisRequest("https://github.com/org/repo", 7L);
+            AnalysisReport saved = reportWithStatus(20L, ReportStatus.PENDING);
+
+            when(agentRepository.findById(7L)).thenReturn(Optional.of(agent));
+            when(reportRepository.save(any(AnalysisReport.class))).thenReturn(saved);
+
+            analysisService.triggerAnalysis(request);
+
+            ArgumentCaptor<AnalysisReport> captor =
+                    ArgumentCaptor.forClass(AnalysisReport.class);
+            verify(reportRepository).save(captor.capture());
+            assertThat(captor.getValue().getAgentId()).isEqualTo(7L);
+            assertThat(captor.getValue().getRepositoryUrl())
+                    .isEqualTo("https://github.com/org/repo");
+        }
     }
 
     // =========================================================================
@@ -189,6 +209,27 @@ class AnalysisServiceTest {
                     .hasSize(1)
                     .allMatch(r -> r.getStatus() == ReportStatus.FAILED);
         }
+
+        @Test
+        @DisplayName("should return empty list when no reports match the given status")
+        void whenNoMatchingReports_shouldReturnEmptyList() {
+            when(reportRepository.findByStatus(ReportStatus.PENDING)).thenReturn(List.of());
+
+            assertThat(analysisService.getReportsByStatus(ReportStatus.PENDING)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should return COMPLETED reports when queried by COMPLETED status")
+        void forCompletedStatus_shouldReturnMatchingReports() {
+            List<AnalysisReport> reports =
+                    List.of(reportWithStatus(3L, ReportStatus.COMPLETED),
+                            reportWithStatus(4L, ReportStatus.COMPLETED));
+            when(reportRepository.findByStatus(ReportStatus.COMPLETED)).thenReturn(reports);
+
+            assertThat(analysisService.getReportsByStatus(ReportStatus.COMPLETED))
+                    .hasSize(2)
+                    .allMatch(r -> r.getStatus() == ReportStatus.COMPLETED);
+        }
     }
 
     // =========================================================================
@@ -246,6 +287,18 @@ class AnalysisServiceTest {
                     .isInstanceOf(AnalysisException.class)
                     .hasMessageContaining("failed report");
         }
+
+        @Test
+        @DisplayName("should throw AnalysisException when report is not found")
+        void whenReportNotFound_shouldThrowAnalysisException() {
+            when(reportRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> analysisService.completeAnalysis(99L, "result"))
+                    .isInstanceOf(AnalysisException.class)
+                    .hasMessageContaining("99");
+
+            verify(reportRepository, never()).save(any());
+        }
     }
 
     // =========================================================================
@@ -299,6 +352,18 @@ class AnalysisServiceTest {
             assertThatThrownBy(() -> analysisService.failAnalysis(4L, "err"))
                     .isInstanceOf(AnalysisException.class)
                     .hasMessageContaining("terminal status");
+        }
+
+        @Test
+        @DisplayName("should throw AnalysisException when report is not found")
+        void whenReportNotFound_shouldThrowAnalysisException() {
+            when(reportRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> analysisService.failAnalysis(99L, "error"))
+                    .isInstanceOf(AnalysisException.class)
+                    .hasMessageContaining("99");
+
+            verify(reportRepository, never()).save(any());
         }
     }
 }
