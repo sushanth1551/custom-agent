@@ -151,11 +151,15 @@ Analyze existing Java (Spring Boot / REST / Microservices) code and:
 ## 📊 Scoring System
 
 Evaluate:
+- Coverage improvement (0–100%)
+- Test quality
+- Edge case completeness
+- Maintainability score
 
-* Coverage improvement (0–100%)
-* Test quality
-* Edge case completeness
-* Maintainability score
+Also provide:
+- Previous coverage %
+- New coverage %
+- Coverage delta (e.g., +23%)
 
 ---
 
