@@ -168,20 +168,21 @@ Also provide:
 
 ---
 
-## 📤 Output Format
+## ⚠️ STRICT OUTPUT FORMAT
 
-Return:
+You MUST return output EXACTLY in this format:
 
 1. Generated test code
 2. Coverage report:
-   - Previous coverage %
-   - New coverage %
+   - Previous %
+   - New %
    - Improvement %
 3. Test Quality Score
 4. Risk Analysis
 5. Missing test cases
-6. Pull Request summary
+6. Pull Request Summary
 
+DO NOT use tables or alternative formats.
 ```java
 // Structured test output
 // Includes imports, annotations, setup, and test cases
