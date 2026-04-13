@@ -4,6 +4,7 @@ com/customagent/exception/GlobalExceptionHandlerTest$HandleAnalysisException.cla
 com/customagent/service/AgentServiceTest$UpdateAgent.class
 com/customagent/repository/AnalysisReportRepositoryTest.class
 com/customagent/controller/AnalysisControllerTest$TriggerAnalysis.class
+com/customagent/controller/AnalysisControllerTest$ErrorAndEdgeCases.class
 com/customagent/controller/AnalysisControllerTest$GetReportsByAgentId.class
 com/customagent/service/AnalysisServiceTest$GetReportsByStatus.class
 com/customagent/service/AnalysisServiceTest$TriggerAnalysis.class
@@ -20,6 +21,7 @@ com/customagent/service/AnalysisServiceTest$FailAnalysis.class
 com/customagent/service/AgentServiceTest$GetAllAgents.class
 com/customagent/controller/AgentControllerTest$StatusEndpoints.class
 com/customagent/controller/AnalysisControllerTest$GetReportsByStatus.class
+com/customagent/controller/AgentControllerTest$ErrorAndEdgeCases.class
 com/customagent/service/AgentServiceTest$CreateAgent.class
 com/customagent/exception/GlobalExceptionHandlerTest.class
 com/customagent/service/AgentServiceTest.class

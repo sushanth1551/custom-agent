@@ -123,4 +123,79 @@ class AnalysisReportRepositoryTest {
 
         assertThat(result).isEmpty();
     }
+
+    @Test
+    @DisplayName("deleteById() should remove the report from the database")
+    void deleteById_shouldRemoveReport() {
+        AnalysisReport report = persistReport(1L, "https://github.com/del/repo", ReportStatus.PENDING);
+        Long id = report.getId();
+
+        reportRepository.deleteById(id);
+        em.flush();
+
+        assertThat(reportRepository.findById(id)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("findByStatus() should return empty list when no reports match IN_PROGRESS")
+    void findByStatus_whenNoInProgressReports_shouldReturnEmptyList() {
+        persistReport(1L, "https://github.com/r/1", ReportStatus.PENDING);
+        persistReport(2L, "https://github.com/r/2", ReportStatus.COMPLETED);
+
+        List<AnalysisReport> inProgress = reportRepository.findByStatus(ReportStatus.IN_PROGRESS);
+
+        assertThat(inProgress).isEmpty();
+    }
+
+    @Test
+    @DisplayName("countByStatus() should return zero for IN_PROGRESS when no such reports exist")
+    void countByStatus_forInProgressWithNoRecords_shouldReturnZero() {
+        persistReport(1L, "https://github.com/r/1", ReportStatus.COMPLETED);
+        persistReport(2L, "https://github.com/r/2", ReportStatus.FAILED);
+
+        assertThat(reportRepository.countByStatus(ReportStatus.IN_PROGRESS)).isZero();
+    }
+
+    @Test
+    @DisplayName("findByRepositoryUrl() should return empty list when URL does not match any record")
+    void findByRepositoryUrl_whenNoMatch_shouldReturnEmptyList() {
+        persistReport(1L, "https://github.com/real/repo", ReportStatus.PENDING);
+
+        List<AnalysisReport> result =
+                reportRepository.findByRepositoryUrl("https://github.com/ghost/repo");
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("save() should persist the result field when set")
+    void save_shouldPersistResultField() {
+        AnalysisReport report = AnalysisReport.builder()
+                .agentId(5L)
+                .repositoryUrl("https://github.com/r/with-result")
+                .status(ReportStatus.COMPLETED)
+                .result("{\"coverage\": 85}")
+                .build();
+
+        AnalysisReport saved = reportRepository.save(report);
+        em.flush();
+        em.clear();
+
+        AnalysisReport reloaded = reportRepository.findById(saved.getId()).orElseThrow();
+        assertThat(reloaded.getResult()).isEqualTo("{\"coverage\": 85}");
+        assertThat(reloaded.getStatus()).isEqualTo(ReportStatus.COMPLETED);
+    }
+
+    @Test
+    @DisplayName("findByAgentId() should not return reports belonging to a different agent")
+    void findByAgentId_shouldNotReturnOtherAgentsReports() {
+        persistReport(100L, "https://github.com/a/1", ReportStatus.PENDING);
+        persistReport(200L, "https://github.com/b/1", ReportStatus.COMPLETED);
+        persistReport(200L, "https://github.com/b/2", ReportStatus.FAILED);
+
+        List<AnalysisReport> agent100Reports = reportRepository.findByAgentId(100L);
+
+        assertThat(agent100Reports).hasSize(1)
+                .allMatch(r -> r.getAgentId().equals(100L));
+    }
 }

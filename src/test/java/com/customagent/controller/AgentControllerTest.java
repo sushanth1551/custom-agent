@@ -268,5 +268,91 @@ class AgentControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("INACTIVE"));
         }
+
+        @Test
+        @DisplayName("activate should return 404 AGENT_NOT_FOUND when agent does not exist")
+        void activate_whenNotFound_shouldReturn404() throws Exception {
+            when(agentService.activateAgent(99L))
+                    .thenThrow(new AgentNotFoundException("Agent not found with id: 99"));
+
+            mockMvc.perform(patch("/api/agents/99/activate"))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("AGENT_NOT_FOUND"))
+                    .andExpect(jsonPath("$.message").value(containsString("99")));
+        }
+
+        @Test
+        @DisplayName("deactivate should return 404 AGENT_NOT_FOUND when agent does not exist")
+        void deactivate_whenNotFound_shouldReturn404() throws Exception {
+            when(agentService.deactivateAgent(99L))
+                    .thenThrow(new AgentNotFoundException("Agent not found with id: 99"));
+
+            mockMvc.perform(patch("/api/agents/99/deactivate"))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("AGENT_NOT_FOUND"))
+                    .andExpect(jsonPath("$.message").value(containsString("99")));
+        }
+    }
+
+    // =========================================================================
+    @Nested
+    @DisplayName("Error and edge-case scenarios")
+    class ErrorAndEdgeCases {
+
+        @Test
+        @DisplayName("PUT should return 400 INVALID_REQUEST when update causes a name conflict")
+        void update_whenDuplicateName_shouldReturn400() throws Exception {
+            AgentRequest req = buildRequest("TakenName");
+            when(agentService.updateAgent(eq(1L), any())).thenThrow(
+                    new IllegalArgumentException("Agent with name 'TakenName' already exists"));
+
+            mockMvc.perform(put("/api/agents/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("INVALID_REQUEST"))
+                    .andExpect(jsonPath("$.message").value(containsString("TakenName")));
+        }
+
+        @Test
+        @DisplayName("POST should return 500 INTERNAL_ERROR when an unexpected exception occurs")
+        void create_whenUnexpectedError_shouldReturn500() throws Exception {
+            AgentRequest req = buildRequest("SomeAgent");
+            when(agentService.createAgent(any()))
+                    .thenThrow(new RuntimeException("Unexpected DB failure"));
+
+            mockMvc.perform(post("/api/agents")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.code").value("INTERNAL_ERROR"))
+                    .andExpect(jsonPath("$.message").value("An unexpected error occurred"));
+        }
+
+        @Test
+        @DisplayName("GET /api/agents should include agent status in each list element")
+        void getAllAgents_shouldReturnStatusFieldInEveryElement() throws Exception {
+            when(agentService.getAllAgents()).thenReturn(
+                    List.of(buildAgent(1L, "A1"), buildAgent(2L, "A2")));
+
+            mockMvc.perform(get("/api/agents"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].status").value("ACTIVE"))
+                    .andExpect(jsonPath("$[1].status").value("ACTIVE"));
+        }
+
+        @Test
+        @DisplayName("GET /api/agents/{id} should return all expected fields")
+        void getById_shouldReturnAllExpectedFields() throws Exception {
+            Agent agent = buildAgent(5L, "FullFieldAgent");
+            when(agentService.getAgentById(5L)).thenReturn(agent);
+
+            mockMvc.perform(get("/api/agents/5"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(5))
+                    .andExpect(jsonPath("$.name").value("FullFieldAgent"))
+                    .andExpect(jsonPath("$.description").value("Desc"))
+                    .andExpect(jsonPath("$.status").value("ACTIVE"));
+        }
     }
 }

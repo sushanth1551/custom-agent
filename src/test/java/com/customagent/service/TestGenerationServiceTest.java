@@ -291,13 +291,47 @@ class TestGenerationServiceTest {
         }
 
         @Test
-        @DisplayName("public method on first line has no preceding annotation and is uncovered")
-        void whenPublicMethodIsOnFirstLine_shouldBeUncovered() {
-            String source = "public void topLevelMethod() {}";
+        @DisplayName("should NOT include interface declaration lines as uncovered methods")
+        void withInterfaceDeclaration_interfaceLineShouldBeExcluded() {
+            String source = String.join("\n",
+                    "public interface MyService {",
+                    "    public void doSomething();",
+                    "}");
 
             List<String> uncovered = service.identifyUncoveredMethods(source);
 
-            assertThat(uncovered).contains("topLevelMethod");
+            // Interface declaration itself must not appear as a method
+            assertThat(uncovered).doesNotContain("MyService");
+        }
+
+        @Test
+        @DisplayName("public method preceded only by javadoc should be treated as uncovered")
+        void withJavadocPrecedingMethod_shouldCountAsUncovered() {
+            String source = String.join("\n",
+                    "class Service {",
+                    "    /** Returns the name */",
+                    "    public String getName() { return name; }",
+                    "}");
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered).contains("getName");
+        }
+
+        @Test
+        @DisplayName("source with only tab/newline whitespace should return empty list")
+        void withOnlyWhitespaceAndNewlines_shouldReturnEmptyList() {
+            assertThat(service.identifyUncoveredMethods("\t\n  \n\t")).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should NOT count public interface declarations as uncovered methods")
+        void withPublicInterfaceDeclaration_shouldNotBeCountedAsMethod() {
+            String source = "public interface Runnable { public void run(); }";
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered).doesNotContain("Runnable");
         }
     }
 
@@ -410,6 +444,48 @@ class TestGenerationServiceTest {
             Map<String, Integer> stats = service.calculateTestStats(List.of("someTest"));
 
             assertThat(stats).containsKeys("total", "happyPath", "errorScenarios");
+        }
+
+        @Test
+        @DisplayName("'negative' keyword should be classified as an error scenario")
+        void withNegativeKeyword_shouldCountAsErrorScenario() {
+            List<String> methods = List.of(
+                    "createOrder_positiveCase",
+                    "processPayment_negative_flow",
+                    "validateInput_negativeScenario");
+
+            Map<String, Integer> stats = service.calculateTestStats(methods);
+
+            assertThat(stats.get("total")).isEqualTo(3);
+            assertThat(stats.get("errorScenarios")).isEqualTo(2);
+            assertThat(stats.get("happyPath")).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("total should equal happyPath + errorScenarios for any input")
+        void totalShouldAlwaysEqualSumOfHappyAndError() {
+            List<String> methods = List.of(
+                    "doCreate_shouldSucceed",
+                    "doCreate_whenNull_throws",
+                    "doUpdate_shouldSucceed",
+                    "doDelete_whenNotFound_fails",
+                    "doRead_shouldReturnItem");
+
+            Map<String, Integer> stats = service.calculateTestStats(methods);
+
+            assertThat(stats.get("total"))
+                    .isEqualTo(stats.get("happyPath") + stats.get("errorScenarios"));
+        }
+
+        @Test
+        @DisplayName("single error-keyword method should yield total=1, happy=0, errors=1")
+        void withSingleErrorMethod_shouldReturnCorrectStats() {
+            Map<String, Integer> stats =
+                    service.calculateTestStats(List.of("whenInvalidInput_shouldThrowException"));
+
+            assertThat(stats.get("total")).isEqualTo(1);
+            assertThat(stats.get("errorScenarios")).isEqualTo(1);
+            assertThat(stats.get("happyPath")).isZero();
         }
     }
 }

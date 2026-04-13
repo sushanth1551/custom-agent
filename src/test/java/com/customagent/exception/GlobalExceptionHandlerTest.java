@@ -196,6 +196,29 @@ class GlobalExceptionHandlerTest {
 
             assertThat(handler.handleValidationException(ex).getTimestamp()).isNotNull();
         }
+
+        @Test
+        @DisplayName("should produce a blank message when there are no field errors")
+        void withNoFieldErrors_shouldReturnBlankMessage() {
+            MethodArgumentNotValidException ex = buildValidationException(List.of());
+
+            ErrorResponse response = handler.handleValidationException(ex);
+
+            assertThat(response.getStatus()).isEqualTo(400);
+            assertThat(response.getCode()).isEqualTo("VALIDATION_ERROR");
+            assertThat(response.getMessage()).isBlank();
+        }
+
+        @Test
+        @DisplayName("should handle a single field error without extra delimiters")
+        void withSingleFieldError_shouldReturnMessageWithoutDelimiters() {
+            MethodArgumentNotValidException ex = buildValidationException(
+                    List.of(new FieldError("req", "name", "Name is required")));
+
+            String message = handler.handleValidationException(ex).getMessage();
+
+            assertThat(message).isEqualTo("Name is required");
+        }
     }
 
     // =========================================================================
@@ -237,6 +260,38 @@ class GlobalExceptionHandlerTest {
         void shouldSetNonNullTimestamp() {
             assertThat(handler.handleGenericException(new Exception("e"))
                     .getTimestamp()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("should handle checked exceptions and return status 500")
+        void shouldHandleCheckedException_returningStatus500() {
+            ErrorResponse response =
+                    handler.handleGenericException(new Exception("checked exception detail"));
+
+            assertThat(response.getStatus()).isEqualTo(500);
+            assertThat(response.getCode()).isEqualTo("INTERNAL_ERROR");
+            assertThat(response.getMessage()).isEqualTo("An unexpected error occurred");
+        }
+
+        @Test
+        @DisplayName("should handle NullPointerException and return status 500")
+        void shouldHandleNullPointerException_returningStatus500() {
+            ErrorResponse response =
+                    handler.handleGenericException(new NullPointerException("npe"));
+
+            assertThat(response.getStatus()).isEqualTo(500);
+            assertThat(response.getMessage()).doesNotContain("npe");
+        }
+
+        @Test
+        @DisplayName("timestamp should be at or before the current time")
+        void timestamp_shouldBeAtOrBeforeNow() {
+            ErrorResponse response =
+                    handler.handleGenericException(new RuntimeException("timing test"));
+
+            assertThat(response.getTimestamp())
+                    .isNotNull()
+                    .isBeforeOrEqualTo(java.time.LocalDateTime.now());
         }
     }
 }
