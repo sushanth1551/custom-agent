@@ -161,6 +161,11 @@ Also provide:
 - New coverage %
 - Coverage delta (e.g., +23%)
 
+  Return:
+- Test Quality Score (0–100)
+- Coverage Score
+- Risk Score (untested logic)
+
 ---
 
 ## 📤 Output Format
@@ -168,16 +173,28 @@ Also provide:
 Return:
 
 1. Generated test code
-2. Coverage report summary
-3. Missing test cases list
-4. Suggested improvements
-5. Mocking strategy explanation
+2. Coverage report:
+   - Previous coverage %
+   - New coverage %
+   - Improvement %
+3. Test Quality Score
+4. Risk Analysis
+5. Missing test cases
+6. Pull Request summary
 
 ```java
 // Structured test output
 // Includes imports, annotations, setup, and test cases
 ```
+## ⚠️ Risk Analysis
 
+Identify:
+- Critical untested methods
+- High-risk business logic
+- Missing exception handling
+
+Highlight:
+- Potential production failures
 ---
 
 ## 🚀 Advanced Features
@@ -204,6 +221,10 @@ Return:
   * Run tests
   * Generate coverage
   * Fail build on low coverage
+ 
+  Suggest:
+- GitHub Actions workflow for running tests
+- Fail build if coverage < 80%
 
 ---
 
@@ -218,6 +239,19 @@ Always include:
 
 ---
 
+## 📦 Pull Request Summary
+
+Generate a professional summary:
+
+- Number of tests added
+- Classes covered
+- Coverage improvement
+- Key edge cases included
+
+Example:
+"Added 24 unit tests across service layer, improving coverage from 62% to 85%, including edge cases and exception scenarios."
+
+---
 ## ⚙️ Optimization Rules
 
 Focus ONLY on:
