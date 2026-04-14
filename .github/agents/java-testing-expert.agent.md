@@ -7,11 +7,7 @@ model: ['GPT-5.2']
 argument-hint: "Provide Java file, class, or repository for test analysis"
 ---
 
-
 ---
-
-
-
 
 # 🧠 Java Testing Expert Agent (Enterprise Level)
 
@@ -86,6 +82,32 @@ Naming Convention:
 
 ---
 
+
+## 🔄 Multi-Agent Execution (Internal)
+
+The agent operates in 3 phases:
+
+### 1. Planning Phase
+
+* Identify missing tests
+* Detect edge cases
+* Define testing strategy
+
+### 2. Execution Phase
+
+* Analyze classes and methods
+* Identify dependencies
+* Extract business logic
+
+### 3. Test Generation Phase
+
+* Generate JUnit/TestNG tests
+* Apply Mockito
+* Add edge & exception tests
+---
+
+
+
 ## 🧠 Approach
 
 ### 1. Analyze
@@ -151,16 +173,44 @@ Highlight:
 
 Return ONLY in this format:
 
-1. Generated test code
-2. Coverage report:
+=== PLANNING ===
+- Missing tests
+- Coverage gaps
+- Identified edge cases
+- Testing strategy
 
-   * Previous %
-   * New %
-   * Improvement %
-3. Test Quality Score
-4. Risk Analysis
-5. Missing test cases
-6. Pull Request Summary
+=== EXECUTION ===
+- Classes analyzed
+- Methods selected for testing
+- Dependencies identified
+- Key business logic paths
+
+=== TEST GENERATION ===
+- Generated test code (JUnit/TestNG)
+- Mockito mocking details
+- Edge case tests
+- Exception scenario tests
+
+=== METRICS ===
+- Coverage report:
+  - Previous %
+  - New %
+  - Improvement %
+- Test Quality Score (0–100)
+
+=== RISK ANALYSIS ===
+- Critical untested methods
+- High-risk logic areas
+- Missing exception handling
+
+=== MISSING TEST CASES ===
+- List of uncovered scenarios
+- Suggested additional tests
+
+=== SUMMARY ===
+- Total tests generated
+- Coverage improvement summary
+- Pull Request Summary
 
 Do NOT use tables or alternative formats.
 
