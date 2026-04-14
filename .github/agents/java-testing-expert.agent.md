@@ -50,6 +50,13 @@ Analyze existing Java (Spring Boot / REST / Microservices) code and:
 * Parameterized testing (`@ParameterizedTest`, `@CsvSource`)
 * Async testing (`CompletableFuture`, reactive streams)
 * Assertion libraries (AssertJ, Hamcrest)
+  
+* ## 🎓 Additional Capabilities
+- Thread-safe code testing
+- Performance assertion limits
+- Mock reset strategies
+- Test isolation best practices
+- Spring Cloud testing (@SpringCloudTest)
 
 ---
 
