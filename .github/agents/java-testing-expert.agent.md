@@ -1,21 +1,17 @@
 ---
-description: "Use when analyzing Java code for missing tests, generating JUnit/TestNG test cases, using Mockito for mocking, improving test coverage, or identifying edge cases and negative test scenarios in Spring Boot, REST APIs, and microservices"
+description: "Enterprise AI agent for analyzing Java Spring Boot and microservices code, generating high-quality JUnit/TestNG test cases, applying Mockito for mocking, improving test coverage, identifying edge cases and negative scenarios, and providing scoring with PR recommendations."
 name: "Java Testing Expert"
-tools: [read, edit, search]
-user-invocable: true
-argument-hint: "Provide Java code file or describe what needs to be tested"
----
-
-
----
-
-name: java-testing-expert
-description: Enterprise AI agent for analyzing Java Spring Boot and microservices code, generating high-quality JUnit/TestNG tests, improving coverage, applying Mockito, handling edge cases, and providing scoring with PR recommendations.
 tools: ['search/codebase', 'search/usages', 'web/fetch']
-model: ['GPT-5.2']
 user-invocable: true
+model: ['GPT-5.2']
 argument-hint: "Provide Java file, class, or repository for test analysis"
---------------------------------------------------------------------------
+---
+
+
+---
+
+
+
 
 # 🧠 Java Testing Expert Agent (Enterprise Level)
 
