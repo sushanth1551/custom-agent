@@ -230,6 +230,18 @@ class AnalysisServiceTest {
                     .hasSize(2)
                     .allMatch(r -> r.getStatus() == ReportStatus.COMPLETED);
         }
+
+        @Test
+        @DisplayName("should return IN_PROGRESS reports when queried by IN_PROGRESS status")
+        void forInProgressStatus_shouldReturnMatchingReports() {
+            List<AnalysisReport> reports =
+                    List.of(reportWithStatus(5L, ReportStatus.IN_PROGRESS));
+            when(reportRepository.findByStatus(ReportStatus.IN_PROGRESS)).thenReturn(reports);
+
+            assertThat(analysisService.getReportsByStatus(ReportStatus.IN_PROGRESS))
+                    .hasSize(1)
+                    .allMatch(r -> r.getStatus() == ReportStatus.IN_PROGRESS);
+        }
     }
 
     // =========================================================================
@@ -299,6 +311,32 @@ class AnalysisServiceTest {
 
             verify(reportRepository, never()).save(any());
         }
+
+        @Test
+        @DisplayName("should call save exactly once when completing a PENDING report")
+        void whenPending_shouldCallSaveExactlyOnce() {
+            AnalysisReport report = reportWithStatus(10L, ReportStatus.PENDING);
+            when(reportRepository.findById(10L)).thenReturn(Optional.of(report));
+            when(reportRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            analysisService.completeAnalysis(10L, "done");
+
+            verify(reportRepository, times(1)).save(report);
+        }
+
+        @Test
+        @DisplayName("should accept a null result payload when completing analysis")
+        void whenCompletingWithNullResult_shouldSetNullResultAndComplete() {
+            AnalysisReport report = reportWithStatus(11L, ReportStatus.PENDING);
+            when(reportRepository.findById(11L)).thenReturn(Optional.of(report));
+            when(reportRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            AnalysisReport result = analysisService.completeAnalysis(11L, null);
+
+            assertThat(result.getStatus()).isEqualTo(ReportStatus.COMPLETED);
+            assertThat(result.getResult()).isNull();
+            assertThat(result.getCompletedAt()).isNotNull();
+        }
     }
 
     // =========================================================================
@@ -364,6 +402,32 @@ class AnalysisServiceTest {
                     .hasMessageContaining("99");
 
             verify(reportRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should call save exactly once when failing a PENDING report")
+        void whenPending_shouldCallSaveExactlyOnce() {
+            AnalysisReport report = reportWithStatus(10L, ReportStatus.PENDING);
+            when(reportRepository.findById(10L)).thenReturn(Optional.of(report));
+            when(reportRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            analysisService.failAnalysis(10L, "connection timeout");
+
+            verify(reportRepository, times(1)).save(report);
+        }
+
+        @Test
+        @DisplayName("completedAt should be set when transitioning IN_PROGRESS → FAILED")
+        void whenInProgress_completedAtShouldBeSet() {
+            AnalysisReport report = reportWithStatus(11L, ReportStatus.IN_PROGRESS);
+            when(reportRepository.findById(11L)).thenReturn(Optional.of(report));
+            when(reportRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            AnalysisReport result = analysisService.failAnalysis(11L, "out-of-memory");
+
+            assertThat(result.getCompletedAt())
+                    .isNotNull()
+                    .isBeforeOrEqualTo(LocalDateTime.now());
         }
     }
 }

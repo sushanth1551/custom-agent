@@ -172,6 +172,16 @@ class AnalysisControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)));
         }
+
+        @Test
+        @DisplayName("should return 200 with empty list when agent has no reports")
+        void whenNoReports_shouldReturn200WithEmptyList() throws Exception {
+            when(analysisService.getReportsByAgentId(999L)).thenReturn(List.of());
+
+            mockMvc.perform(get("/api/analysis/agent/999"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(0)));
+        }
     }
 
     // =========================================================================
@@ -199,6 +209,65 @@ class AnalysisControllerTest {
             mockMvc.perform(get("/api/analysis/status/FAILED"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        @DisplayName("should return 200 with IN_PROGRESS reports")
+        void withInProgressStatus_shouldReturn200WithMatchingReports() throws Exception {
+            when(analysisService.getReportsByStatus(ReportStatus.IN_PROGRESS)).thenReturn(
+                    List.of(buildReport(5L, ReportStatus.IN_PROGRESS)));
+
+            mockMvc.perform(get("/api/analysis/status/IN_PROGRESS"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].status").value("IN_PROGRESS"));
+        }
+
+        @Test
+        @DisplayName("should return 200 with COMPLETED reports")
+        void withCompletedStatus_shouldReturn200WithMatchingReports() throws Exception {
+            when(analysisService.getReportsByStatus(ReportStatus.COMPLETED)).thenReturn(
+                    List.of(buildReport(7L, ReportStatus.COMPLETED),
+                            buildReport(8L, ReportStatus.COMPLETED)));
+
+            mockMvc.perform(get("/api/analysis/status/COMPLETED"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].status").value("COMPLETED"));
+        }
+    }
+
+    // =========================================================================
+    @Nested
+    @DisplayName("Error and edge-case scenarios")
+    class ErrorAndEdgeCases {
+
+        @Test
+        @DisplayName("POST /api/analysis should return 500 INTERNAL_ERROR on unexpected exception")
+        void trigger_whenUnexpectedError_shouldReturn500() throws Exception {
+            AnalysisRequest req = new AnalysisRequest("https://github.com/org/repo", 1L);
+            when(analysisService.triggerAnalysis(any()))
+                    .thenThrow(new RuntimeException("Unexpected failure"));
+
+            mockMvc.perform(post("/api/analysis")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.code").value("INTERNAL_ERROR"))
+                    .andExpect(jsonPath("$.message").value("An unexpected error occurred"));
+        }
+
+        @Test
+        @DisplayName("GET /api/analysis/{id} response should contain agentId and repositoryUrl fields")
+        void getById_shouldReturnAllFields() throws Exception {
+            when(analysisService.getReportById(10L))
+                    .thenReturn(buildReport(10L, ReportStatus.PENDING));
+
+            mockMvc.perform(get("/api/analysis/10"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(10))
+                    .andExpect(jsonPath("$.agentId").value(1))
+                    .andExpect(jsonPath("$.repositoryUrl").value("https://github.com/org/repo"))
+                    .andExpect(jsonPath("$.status").value("PENDING"));
         }
     }
 }

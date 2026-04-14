@@ -116,6 +116,22 @@ class AgentServiceTest {
             verify(agentRepository).save(captor.capture());
             assertThat(captor.getValue().getTools()).isEmpty();
         }
+
+        @Test
+        @DisplayName("should persist empty tools when request supplies an explicit empty list")
+        void whenToolsAreEmpty_shouldPersistEmptyList() {
+            AgentRequest request = new AgentRequest("EmptyToolsAgent", "Desc", List.of());
+            Agent persisted = buildAgent(2L, "EmptyToolsAgent", AgentStatus.ACTIVE);
+
+            when(agentRepository.existsByName(anyString())).thenReturn(false);
+            when(agentRepository.save(any(Agent.class))).thenReturn(persisted);
+
+            agentService.createAgent(request);
+
+            ArgumentCaptor<Agent> captor = ArgumentCaptor.forClass(Agent.class);
+            verify(agentRepository).save(captor.capture());
+            assertThat(captor.getValue().getTools()).isEmpty();
+        }
     }
 
     // =========================================================================
@@ -173,6 +189,19 @@ class AgentServiceTest {
             when(agentRepository.findAll()).thenReturn(Collections.emptyList());
 
             assertThat(agentService.getAllAgents()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should return a single-element list when exactly one agent exists")
+        void whenOneAgent_shouldReturnSingletonList() {
+            when(agentRepository.findAll()).thenReturn(
+                    List.of(buildAgent(1L, "Solo", AgentStatus.ACTIVE)));
+
+            List<Agent> result = agentService.getAllAgents();
+
+            assertThat(result).hasSize(1)
+                    .extracting(Agent::getName)
+                    .containsExactly("Solo");
         }
     }
 
@@ -374,6 +403,30 @@ class AgentServiceTest {
 
             assertThat(result.getStatus()).isEqualTo(AgentStatus.INACTIVE);
             verify(agentRepository).save(agent);
+        }
+
+        @Test
+        @DisplayName("activateAgent should call repository save exactly once")
+        void activateAgent_shouldCallSaveExactlyOnce() {
+            Agent agent = buildAgent(5L, "SaveOnce", AgentStatus.INACTIVE);
+            when(agentRepository.findById(5L)).thenReturn(Optional.of(agent));
+            when(agentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            agentService.activateAgent(5L);
+
+            verify(agentRepository, times(1)).save(agent);
+        }
+
+        @Test
+        @DisplayName("deactivateAgent should call repository save exactly once")
+        void deactivateAgent_shouldCallSaveExactlyOnce() {
+            Agent agent = buildAgent(6L, "DeactivateSaveOnce", AgentStatus.ACTIVE);
+            when(agentRepository.findById(6L)).thenReturn(Optional.of(agent));
+            when(agentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            agentService.deactivateAgent(6L);
+
+            verify(agentRepository, times(1)).save(agent);
         }
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -140,5 +141,60 @@ class AgentRepositoryTest {
         assertThat(all).hasSizeGreaterThanOrEqualTo(2)
                 .extracting(Agent::getName)
                 .contains("BatchA1", "BatchA2");
+    }
+
+    @Test
+    @DisplayName("save() should auto-populate createdAt via @CreationTimestamp")
+    void save_shouldAutoPopulateCreatedAt() {
+        Agent agent = Agent.builder().name("TimestampAgent").status(AgentStatus.ACTIVE).build();
+
+        Agent saved = agentRepository.save(agent);
+        em.flush();
+        em.clear();
+
+        Agent reloaded = agentRepository.findById(saved.getId()).orElseThrow();
+        assertThat(reloaded.getCreatedAt())
+                .isNotNull()
+                .isBeforeOrEqualTo(LocalDateTime.now());
+    }
+
+    @Test
+    @DisplayName("findByStatus() should return empty list when no agents have that status")
+    void findByStatus_whenNoneMatch_shouldReturnEmptyList() {
+        persistAgent("OnlyActive", AgentStatus.ACTIVE);
+
+        List<Agent> inactive = agentRepository.findByStatus(AgentStatus.INACTIVE);
+
+        assertThat(inactive).isEmpty();
+    }
+
+    @Test
+    @DisplayName("save() should persist field updates to an existing agent")
+    void save_shouldPersistUpdatesToExistingAgent() {
+        Agent original = persistAgent("OriginalName", AgentStatus.ACTIVE);
+        Long id = original.getId();
+
+        Agent toUpdate = agentRepository.findById(id).orElseThrow();
+        toUpdate.setName("UpdatedName");
+        toUpdate.setStatus(AgentStatus.INACTIVE);
+        agentRepository.save(toUpdate);
+        em.flush();
+        em.clear();
+
+        Agent updated = agentRepository.findById(id).orElseThrow();
+        assertThat(updated.getName()).isEqualTo("UpdatedName");
+        assertThat(updated.getStatus()).isEqualTo(AgentStatus.INACTIVE);
+    }
+
+    @Test
+    @DisplayName("findByName() should not return an agent after it has been deleted")
+    void findByName_afterDeletion_shouldReturnEmpty() {
+        Agent agent = persistAgent("DeleteMeByName", AgentStatus.ACTIVE);
+
+        agentRepository.deleteById(agent.getId());
+        em.flush();
+
+        Optional<Agent> result = agentRepository.findByName("DeleteMeByName");
+        assertThat(result).isEmpty();
     }
 }
