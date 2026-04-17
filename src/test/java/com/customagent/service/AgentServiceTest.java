@@ -132,6 +132,22 @@ class AgentServiceTest {
             verify(agentRepository).save(captor.capture());
             assertThat(captor.getValue().getTools()).isEmpty();
         }
+
+        @Test
+        @DisplayName("should store null description when request has null description")
+        void whenDescriptionIsNull_shouldStoreNullDescription() {
+            AgentRequest request = new AgentRequest("NullDescAgent", null, List.of("read"));
+            Agent persisted = buildAgent(3L, "NullDescAgent", AgentStatus.ACTIVE);
+
+            when(agentRepository.existsByName(anyString())).thenReturn(false);
+            when(agentRepository.save(any(Agent.class))).thenReturn(persisted);
+
+            agentService.createAgent(request);
+
+            ArgumentCaptor<Agent> captor = ArgumentCaptor.forClass(Agent.class);
+            verify(agentRepository).save(captor.capture());
+            assertThat(captor.getValue().getDescription()).isNull();
+        }
     }
 
     // =========================================================================
@@ -299,6 +315,34 @@ class AgentServiceTest {
             assertThat(saved.getName()).isEqualTo("NewName");
             assertThat(saved.getDescription()).isEqualTo("New desc");
             assertThat(saved.getTools()).containsExactly("search", "write");
+        }
+
+        @Test
+        @DisplayName("should clear description to null when update request has null description")
+        void whenDescriptionIsNull_shouldClearDescriptionToNull() {
+            Agent existing = buildAgent(4L, "AgentA", AgentStatus.ACTIVE);
+            AgentRequest request = new AgentRequest("AgentA", null, List.of("read"));
+
+            when(agentRepository.findById(4L)).thenReturn(Optional.of(existing));
+            when(agentRepository.save(any(Agent.class))).thenAnswer(inv -> inv.getArgument(0));
+
+            Agent result = agentService.updateAgent(4L, request);
+
+            assertThat(result.getDescription()).isNull();
+        }
+
+        @Test
+        @DisplayName("should preserve the agent status unchanged after update")
+        void whenUpdating_shouldPreserveExistingStatus() {
+            Agent existing = buildAgent(5L, "AgentB", AgentStatus.INACTIVE);
+            AgentRequest request = new AgentRequest("AgentB", "Updated desc", List.of("write"));
+
+            when(agentRepository.findById(5L)).thenReturn(Optional.of(existing));
+            when(agentRepository.save(any(Agent.class))).thenAnswer(inv -> inv.getArgument(0));
+
+            Agent result = agentService.updateAgent(5L, request);
+
+            assertThat(result.getStatus()).isEqualTo(AgentStatus.INACTIVE);
         }
     }
 

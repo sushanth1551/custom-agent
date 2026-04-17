@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.customagent.service.AgentServiceTest
 -------------------------------------------------------------------------------
-Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.272 s -- in com.customagent.service.AgentServiceTest
+Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.163 s -- in com.customagent.service.AgentServiceTest
