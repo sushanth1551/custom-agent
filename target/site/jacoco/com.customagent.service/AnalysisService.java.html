@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalysisService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Custom Agent Platform</a> &gt; <a href="index.source.html" class="el_package">com.customagent.service</a> &gt; <span class="el_source">AnalysisService.java</span></div><h1>AnalysisService.java</h1><pre class="source lang-java linenums">package com.customagent.service;
+
+import com.customagent.exception.AgentNotFoundException;
+import com.customagent.exception.AnalysisException;
+import com.customagent.model.Agent;
+import com.customagent.model.AgentStatus;
+import com.customagent.model.AnalysisReport;
+import com.customagent.model.ReportStatus;
+import com.customagent.model.dto.AnalysisRequest;
+import com.customagent.repository.AgentRepository;
+import com.customagent.repository.AnalysisReportRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+<span class="fc" id="L20">@Slf4j</span>
+@Service
+<span class="fc" id="L22">@RequiredArgsConstructor</span>
+@Transactional
+public class AnalysisService {
+
+    private final AnalysisReportRepository reportRepository;
+    private final AgentRepository          agentRepository;
+
+    // ─── TRIGGER ─────────────────────────────────────────────────────────────
+
+    /**
+     * Starts a new analysis job for the given repository using the specified agent.
+     *
+     * @throws AgentNotFoundException if the agent does not exist
+     * @throws AnalysisException      if the agent is not ACTIVE
+     */
+    public AnalysisReport triggerAnalysis(AnalysisRequest request) {
+<span class="fc" id="L38">        Agent agent = agentRepository.findById(request.getAgentId())</span>
+<span class="fc" id="L39">                .orElseThrow(() -&gt; new AgentNotFoundException(</span>
+<span class="fc" id="L40">                        &quot;Agent not found with id: &quot; + request.getAgentId()));</span>
+
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (agent.getStatus() != AgentStatus.ACTIVE) {</span>
+<span class="fc" id="L43">            throw new AnalysisException(</span>
+<span class="fc" id="L44">                    &quot;Cannot trigger analysis with inactive agent: &quot; + agent.getId());</span>
+        }
+
+<span class="fc" id="L47">        AnalysisReport report = AnalysisReport.builder()</span>
+<span class="fc" id="L48">                .repositoryUrl(request.getRepositoryUrl())</span>
+<span class="fc" id="L49">                .agentId(agent.getId())</span>
+<span class="fc" id="L50">                .status(ReportStatus.PENDING)</span>
+<span class="fc" id="L51">                .build();</span>
+
+<span class="fc" id="L53">        AnalysisReport saved = reportRepository.save(report);</span>
+<span class="fc" id="L54">        log.info(&quot;Triggered analysis reportId={} agentId={} url={}&quot;,</span>
+<span class="fc" id="L55">                saved.getId(), saved.getAgentId(), saved.getRepositoryUrl());</span>
+<span class="fc" id="L56">        return saved;</span>
+    }
+
+    // ─── READ ─────────────────────────────────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public AnalysisReport getReportById(Long id) {
+<span class="fc" id="L63">        return reportRepository.findById(id)</span>
+<span class="fc" id="L64">                .orElseThrow(() -&gt; new AnalysisException(</span>
+                        &quot;Analysis report not found with id: &quot; + id));
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;AnalysisReport&gt; getReportsByAgentId(Long agentId) {
+<span class="fc" id="L70">        return reportRepository.findByAgentId(agentId);</span>
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;AnalysisReport&gt; getReportsByStatus(ReportStatus status) {
+<span class="fc" id="L75">        return reportRepository.findByStatus(status);</span>
+    }
+
+    // ─── STATE TRANSITIONS ────────────────────────────────────────────────────
+
+    /**
+     * Marks a report as COMPLETED and stores the result payload.
+     *
+     * @throws AnalysisException if the report is already in a terminal state
+     */
+    public AnalysisReport completeAnalysis(Long reportId, String result) {
+<span class="fc" id="L86">        AnalysisReport report = getReportById(reportId);</span>
+
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (report.getStatus() == ReportStatus.COMPLETED) {</span>
+<span class="fc" id="L89">            throw new AnalysisException(&quot;Report &quot; + reportId + &quot; is already completed&quot;);</span>
+        }
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (report.getStatus() == ReportStatus.FAILED) {</span>
+<span class="fc" id="L92">            throw new AnalysisException(</span>
+                    &quot;Cannot complete a failed report: &quot; + reportId);
+        }
+
+<span class="fc" id="L96">        report.setStatus(ReportStatus.COMPLETED);</span>
+<span class="fc" id="L97">        report.setResult(result);</span>
+<span class="fc" id="L98">        report.setCompletedAt(LocalDateTime.now());</span>
+<span class="fc" id="L99">        return reportRepository.save(report);</span>
+    }
+
+    /**
+     * Marks a report as FAILED and stores the error message.
+     *
+     * @throws AnalysisException if the report is already in a terminal state
+     */
+    public AnalysisReport failAnalysis(Long reportId, String errorMessage) {
+<span class="fc" id="L108">        AnalysisReport report = getReportById(reportId);</span>
+
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (report.getStatus() == ReportStatus.COMPLETED</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">                || report.getStatus() == ReportStatus.FAILED) {</span>
+<span class="fc" id="L112">            throw new AnalysisException(</span>
+                    &quot;Cannot fail report &quot; + reportId
+<span class="fc" id="L114">                            + &quot; in terminal status: &quot; + report.getStatus());</span>
+        }
+
+<span class="fc" id="L117">        report.setStatus(ReportStatus.FAILED);</span>
+<span class="fc" id="L118">        report.setResult(errorMessage);</span>
+<span class="fc" id="L119">        report.setCompletedAt(LocalDateTime.now());</span>
+<span class="fc" id="L120">        return reportRepository.save(report);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

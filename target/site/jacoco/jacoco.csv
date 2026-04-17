@@ -1,0 +1,19 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Custom Agent Platform,com.customagent.service,AgentService,0,174,0,12,0,42,0,16,0,10
+Custom Agent Platform,com.customagent.service,AnalysisService,0,180,0,10,0,39,0,15,0,10
+Custom Agent Platform,com.customagent.service,TestGenerationService,5,287,6,38,2,61,6,25,0,9
+Custom Agent Platform,com.customagent.controller,AnalysisController,0,26,0,0,0,5,0,5,0,5
+Custom Agent Platform,com.customagent.controller,AgentController,0,41,0,0,0,9,0,8,0,8
+Custom Agent Platform,com.customagent.model,AnalysisReport.AnalysisReportBuilder,31,54,1,1,0,1,4,7,3,7
+Custom Agent Platform,com.customagent.model,AnalysisReport,96,69,14,0,2,11,15,14,8,14
+Custom Agent Platform,com.customagent.model,AgentStatus,0,15,0,0,0,3,0,1,0,1
+Custom Agent Platform,com.customagent.model,ReportStatus,0,27,0,0,0,5,0,1,0,1
+Custom Agent Platform,com.customagent.model,Agent,83,74,14,0,2,10,13,15,6,15
+Custom Agent Platform,com.customagent.model,Agent.AgentBuilder,19,67,1,3,0,1,2,9,1,8
+Custom Agent Platform,com.customagent.model.dto,ErrorResponse,3,27,0,0,1,10,1,5,1,5
+Custom Agent Platform,com.customagent.model.dto,AnalysisRequest,98,26,22,0,0,5,15,6,4,6
+Custom Agent Platform,com.customagent.model.dto,AgentRequest,132,36,30,0,0,6,19,8,4,8
+Custom Agent Platform,com.customagent,CustomAgentApplication,5,3,0,0,2,1,1,1,1,1
+Custom Agent Platform,com.customagent.exception,GlobalExceptionHandler,0,57,0,0,0,13,0,6,0,6
+Custom Agent Platform,com.customagent.exception,AgentNotFoundException,5,4,0,0,2,2,1,1,1,1
+Custom Agent Platform,com.customagent.exception,AnalysisException,5,4,0,0,2,2,1,1,1,1
