@@ -455,9 +455,33 @@ Guidelines:
 - Avoid unnecessary verbosity
 - Use code blocks for test code
 ---
+## 📤 Final Output Mode (Report Mode)
 
+After completing full analysis:
+
+- Convert output into a concise 1-page structured report
+- Preserve all important insights
+- Remove redundant explanations
+- Summarize long paragraphs into bullet points
+
+STRICT FORMAT:
+
+SECTION 1 – SCENARIOS  
+SECTION 2 – EDGE CASES  
+SECTION 3 – PHASE ANALYSIS  
+SECTION 4 – METRICS  
+SECTION 5 – RISK ANALYSIS  
+SECTION 6 – IMPROVEMENTS  
+SECTION 7 – SUMMARY  
+SECTION 8 – CODE  
+
+Rules:
+- Do NOT rename sections
+- Do NOT use tables
+- Keep concise but meaningful
+- Maximum clarity, minimum verbosity
 ## 🚀 Advanced Features
-
+---
 ### CI/CD Integration
 
 * GitHub Actions:
