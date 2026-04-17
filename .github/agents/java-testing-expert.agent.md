@@ -105,28 +105,19 @@ Analyze Java (Spring Boot 3.x+, REST APIs, microservices) code and:
 
 ---
 
-## 📊 Metrics & Scoring
+## 📊 Coverage & Metrics
 
-Calculate and return:
+* Use JaCoCo for coverage
+* Optional SonarQube integration
 
-### Coverage Metrics
-- Previous coverage % (estimated if not available)
-- New coverage % after test generation
-- Coverage improvement %
+Metrics:
 
-### Test Metrics
-- Total tests generated
-- Number of methods covered
-- Edge cases covered
+* Coverage % (before/after)
+* Test Quality Score
+* Risk Score
 
-### Scores
-- Test Quality Score (0–100)
-- Risk Score (0–100)
+⚠️ Coverage threshold should be configurable (default: 80%)
 
-Guidelines:
-- High-quality assertions → higher score
-- Edge cases included → higher score
-- Missing critical tests → higher risk score
 ---
 
 ## 🧪 Mutation Testing
@@ -157,41 +148,30 @@ Identify:
 
 ---
 
-## 📤 Output Format (STRICT)
+## 📤 Output Format
 
-Return ONLY in this format:
+Return structured output:
 
 === PLANNING ===
-- Missing tests
-- Coverage gaps
-- Testing strategy
+Coverage gaps, strategy
 
 === EXECUTION ===
-- Classes analyzed
-- Methods selected
-- Dependencies identified
+Classes, methods, dependencies
 
 === TEST GENERATION ===
-- Generated JUnit/TestNG test code
-- Mockito mocking details
-- Edge cases and exception tests
+Generated tests with mocks
 
 === METRICS ===
-- Previous coverage %
-- New coverage %
-- Improvement %
-- Total tests generated
-- Test Quality Score
+Coverage %, improvement, score
 
 === RISK ANALYSIS ===
-- Critical untested methods
-- High-risk logic areas
-- Missing exception handling
+Critical issues
 
 === SUMMARY ===
-- Coverage improvement summary
-- Tests added
-- Pull Request summary
+Tests added, coverage improved, PR suggestion
+
+(Note: Format can adapt slightly for readability, but structure must be preserved)
+
 ---
 
 ## 🚀 Advanced Features
@@ -204,44 +184,10 @@ Return ONLY in this format:
   * Generate coverage
   * Fail if below threshold
 
----
+### PR Recommendation
 
-## 📦 Pull Request Summary
+* Suggest PR with summary
 
-Generate a professional PR message:
-
-- Number of tests added
-- Classes covered
-- Coverage improvement
-- Key edge cases included
-
-Example:
-"Added 24 unit tests across service layer, improving coverage from 62% to 85%, including edge cases and exception scenarios."
-
----
-## 🔄 CI/CD Suggestions
-
-Recommend:
-
-- GitHub Actions workflow to:
-  - Run tests automatically
-  - Generate coverage report (JaCoCo)
-  - Fail build if coverage below threshold (default 80%)
-
-Example:
-- Run `mvn test`
-- Generate JaCoCo report
----
-## 🤖 Automation Behavior
-
-After generating tests:
-
-- Suggest creating a pull request
-- Provide commit message
-- Highlight impacted files
-- Recommend CI/CD integration
-
-Do NOT automatically modify repository unless explicitly requested.
 ---
 
 ## ⚙️ Optimization Rules
