@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalysisReport.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Custom Agent Platform</a> &gt; <a href="index.source.html" class="el_package">com.customagent.model</a> &gt; <span class="el_source">AnalysisReport.java</span></div><h1>AnalysisReport.java</h1><pre class="source lang-java linenums">package com.customagent.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+
+/**
+ * Persisted record of a single code-analysis run for a given repository.
+ */
+@Entity
+@Table(name = &quot;analysis_reports&quot;)
+@Getter
+<span class="pc" id="L15">@Setter</span>
+<span class="fc" id="L16">@NoArgsConstructor</span>
+<span class="fc" id="L17">@AllArgsConstructor</span>
+<span class="pc bpc" id="L18" title="1 of 2 branches missed.">@Builder</span>
+<span class="nc bnc" id="L19" title="All 14 branches missed.">@EqualsAndHashCode(of = &quot;id&quot;)</span>
+<span class="nc" id="L20">@ToString</span>
+public class AnalysisReport {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="fc" id="L25">    private Long id;</span>
+
+    @Column(name = &quot;repository_url&quot;, nullable = false)
+<span class="fc" id="L28">    private String repositoryUrl;</span>
+
+    @Column(name = &quot;agent_id&quot;, nullable = false)
+<span class="fc" id="L31">    private Long agentId;</span>
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+<span class="fc" id="L36">    private ReportStatus status = ReportStatus.PENDING;</span>
+
+    /** JSON-serialised analysis result or error message. */
+    @Column(columnDefinition = &quot;TEXT&quot;)
+<span class="fc" id="L40">    private String result;</span>
+
+    @CreationTimestamp
+    @Column(name = &quot;created_at&quot;, updatable = false)
+<span class="fc" id="L44">    private LocalDateTime createdAt;</span>
+
+    @Column(name = &quot;completed_at&quot;)
+<span class="fc" id="L47">    private LocalDateTime completedAt;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

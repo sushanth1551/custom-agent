@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Custom Agent Platform</a> &gt; <a href="index.source.html" class="el_package">com.customagent.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.customagent.exception;
+
+import com.customagent.model.dto.ErrorResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.stream.Collectors;
+
+/**
+ * Translates application exceptions into uniform JSON {@link ErrorResponse} payloads.
+ *
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@link AgentNotFoundException}            → 404 NOT_FOUND&lt;/li&gt;
+ *   &lt;li&gt;{@link AnalysisException}                 → 422 UNPROCESSABLE_ENTITY&lt;/li&gt;
+ *   &lt;li&gt;{@link IllegalArgumentException}          → 400 BAD_REQUEST&lt;/li&gt;
+ *   &lt;li&gt;{@link MethodArgumentNotValidException}   → 400 BAD_REQUEST (with field details)&lt;/li&gt;
+ *   &lt;li&gt;{@link Exception}                         → 500 INTERNAL_SERVER_ERROR&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+@RestControllerAdvice
+<span class="fc" id="L25">public class GlobalExceptionHandler {</span>
+
+    @ExceptionHandler(AgentNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleAgentNotFound(AgentNotFoundException ex) {
+<span class="fc" id="L30">        return new ErrorResponse(&quot;AGENT_NOT_FOUND&quot;, ex.getMessage(),</span>
+<span class="fc" id="L31">                HttpStatus.NOT_FOUND.value());</span>
+    }
+
+    @ExceptionHandler(AnalysisException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorResponse handleAnalysisException(AnalysisException ex) {
+<span class="fc" id="L37">        return new ErrorResponse(&quot;ANALYSIS_ERROR&quot;, ex.getMessage(),</span>
+<span class="fc" id="L38">                HttpStatus.UNPROCESSABLE_ENTITY.value());</span>
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgument(IllegalArgumentException ex) {
+<span class="fc" id="L44">        return new ErrorResponse(&quot;INVALID_REQUEST&quot;, ex.getMessage(),</span>
+<span class="fc" id="L45">                HttpStatus.BAD_REQUEST.value());</span>
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
+<span class="fc" id="L51">        String message = ex.getBindingResult().getFieldErrors().stream()</span>
+<span class="fc" id="L52">                .map(FieldError::getDefaultMessage)</span>
+<span class="fc" id="L53">                .collect(Collectors.joining(&quot;, &quot;));</span>
+<span class="fc" id="L54">        return new ErrorResponse(&quot;VALIDATION_ERROR&quot;, message, HttpStatus.BAD_REQUEST.value());</span>
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleGenericException(Exception ex) {
+<span class="fc" id="L60">        return new ErrorResponse(&quot;INTERNAL_ERROR&quot;,</span>
+                &quot;An unexpected error occurred&quot;,
+<span class="fc" id="L62">                HttpStatus.INTERNAL_SERVER_ERROR.value());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestGenerationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Custom Agent Platform</a> &gt; <a href="index.source.html" class="el_package">com.customagent.service</a> &gt; <span class="el_source">TestGenerationService.java</span></div><h1>TestGenerationService.java</h1><pre class="source lang-java linenums">package com.customagent.service;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+/**
+ * Pure-logic service that assists in generating JUnit 5 test templates
+ * and analysing source code for test coverage gaps.
+ * &lt;p&gt;
+ * This service has &lt;em&gt;no&lt;/em&gt; external dependencies and is therefore
+ * straightforward to unit-test without mocking.
+ */
+<span class="fc" id="L15">@Slf4j</span>
+@Service
+<span class="fc" id="L17">public class TestGenerationService {</span>
+
+<span class="fc" id="L19">    private static final Set&lt;String&gt; TEST_ANNOTATION_KEYWORDS = Set.of(</span>
+            &quot;@Test&quot;, &quot;@ParameterizedTest&quot;, &quot;@RepeatedTest&quot;
+    );
+
+    // ─── TEMPLATE GENERATION ─────────────────────────────────────────────────
+
+    /**
+     * Generates a JUnit 5 test-class skeleton for the given class and its
+     * public method names.
+     *
+     * @param className   simple class name (e.g. &quot;UserService&quot;)
+     * @param methodNames non-null, non-empty list of public method names
+     * @return complete test-class template as a String
+     * @throws IllegalArgumentException if className or methodNames is null/empty
+     */
+    public String generateTestTemplate(String className, List&lt;String&gt; methodNames) {
+<span class="fc bfc" id="L35" title="All 4 branches covered.">        if (className == null || className.isBlank()) {</span>
+<span class="fc" id="L36">            throw new IllegalArgumentException(&quot;Class name cannot be null or blank&quot;);</span>
+        }
+<span class="fc bfc" id="L38" title="All 4 branches covered.">        if (methodNames == null || methodNames.isEmpty()) {</span>
+<span class="fc" id="L39">            throw new IllegalArgumentException(</span>
+                    &quot;Method names list cannot be null or empty&quot;);
+        }
+
+<span class="fc" id="L43">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L44">        sb.append(&quot;@ExtendWith(MockitoExtension.class)\n&quot;);</span>
+<span class="fc" id="L45">        sb.append(&quot;class &quot;).append(className).append(&quot;Test {\n\n&quot;);</span>
+<span class="fc" id="L46">        sb.append(&quot;    @InjectMocks\n&quot;);</span>
+<span class="fc" id="L47">        sb.append(&quot;    private &quot;).append(className).append(&quot; subject;\n\n&quot;);</span>
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        for (String method : methodNames) {</span>
+<span class="fc" id="L50">            sb.append(&quot;    @Test\n&quot;);</span>
+<span class="fc" id="L51">            sb.append(&quot;    void &quot;).append(method).append(&quot;_shouldSucceed() {\n&quot;);</span>
+<span class="fc" id="L52">            sb.append(&quot;        // Arrange\n&quot;);</span>
+<span class="fc" id="L53">            sb.append(&quot;        // Act\n&quot;);</span>
+<span class="fc" id="L54">            sb.append(&quot;        // Assert\n&quot;);</span>
+<span class="fc" id="L55">            sb.append(&quot;    }\n\n&quot;);</span>
+<span class="fc" id="L56">        }</span>
+
+<span class="fc" id="L58">        sb.append(&quot;}&quot;);</span>
+<span class="fc" id="L59">        log.info(&quot;Generated test template for class={} methodCount={}&quot;,</span>
+<span class="fc" id="L60">                className, methodNames.size());</span>
+<span class="fc" id="L61">        return sb.toString();</span>
+    }
+
+    // ─── COVERAGE ANALYSIS ───────────────────────────────────────────────────
+
+    /**
+     * Scans source-code lines and returns names of {@code public} methods that
+     * are &lt;em&gt;not&lt;/em&gt; immediately preceded by a recognised test annotation.
+     *
+     * @param sourceCode raw Java source code string (may be null)
+     * @return unmodifiable list of uncovered method names; never null
+     */
+    public List&lt;String&gt; identifyUncoveredMethods(String sourceCode) {
+<span class="fc bfc" id="L74" title="All 4 branches covered.">        if (sourceCode == null || sourceCode.isBlank()) {</span>
+<span class="fc" id="L75">            return Collections.emptyList();</span>
+        }
+
+<span class="fc" id="L78">        String[] lines = sourceCode.split(&quot;\n&quot;);</span>
+<span class="fc" id="L79">        List&lt;String&gt; uncovered = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (int i = 0; i &lt; lines.length; i++) {</span>
+<span class="fc" id="L82">            String trimmed = lines[i].trim();</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            if (isPublicMethodDeclaration(trimmed)) {</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">                boolean hasAnnotation = (i &gt; 0)</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">                        &amp;&amp; hasTestAnnotation(lines[i - 1].trim());</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (!hasAnnotation) {</span>
+<span class="fc" id="L87">                    String name = extractMethodName(trimmed);</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                    if (name != null) {</span>
+<span class="fc" id="L89">                        uncovered.add(name);</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L94">        return Collections.unmodifiableList(uncovered);</span>
+    }
+
+    // ─── STATS ───────────────────────────────────────────────────────────────
+
+    /**
+     * Classifies a list of test method names into happy-path vs error scenarios
+     * based on name keywords (error, exception, invalid, null, fail, negative).
+     *
+     * @param testMethodNames non-null list of test method name strings
+     * @return unmodifiable map with keys: {@code total}, {@code happyPath},
+     *         {@code errorScenarios}
+     * @throws IllegalArgumentException if testMethodNames is null
+     */
+    public Map&lt;String, Integer&gt; calculateTestStats(List&lt;String&gt; testMethodNames) {
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (testMethodNames == null) {</span>
+<span class="fc" id="L110">            throw new IllegalArgumentException(&quot;Test methods list cannot be null&quot;);</span>
+        }
+
+<span class="fc" id="L113">        long errorCount = testMethodNames.stream()</span>
+<span class="fc" id="L114">                .filter(m -&gt; m.toLowerCase(Locale.ROOT)</span>
+<span class="fc" id="L115">                        .matches(&quot;.*(error|exception|invalid|null|fail|negative).*&quot;))</span>
+<span class="fc" id="L116">                .count();</span>
+
+<span class="fc" id="L118">        Map&lt;String, Integer&gt; stats = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L119">        stats.put(&quot;total&quot;,          testMethodNames.size());</span>
+<span class="fc" id="L120">        stats.put(&quot;errorScenarios&quot;, (int) errorCount);</span>
+<span class="fc" id="L121">        stats.put(&quot;happyPath&quot;,      testMethodNames.size() - (int) errorCount);</span>
+<span class="fc" id="L122">        return Collections.unmodifiableMap(stats);</span>
+    }
+
+    // ─── PRIVATE HELPERS ─────────────────────────────────────────────────────
+
+    private boolean isPublicMethodDeclaration(String line) {
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        return line.contains(&quot;public &quot;)</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                &amp;&amp; line.contains(&quot;(&quot;)</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">                &amp;&amp; !line.startsWith(&quot;//&quot;)</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                &amp;&amp; !line.startsWith(&quot;*&quot;)</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">                &amp;&amp; !line.startsWith(&quot;/*&quot;)</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">                &amp;&amp; !line.contains(&quot;class &quot;)</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">                &amp;&amp; !line.contains(&quot;interface &quot;);</span>
+    }
+
+    private boolean hasTestAnnotation(String line) {
+<span class="fc" id="L138">        return TEST_ANNOTATION_KEYWORDS.stream().anyMatch(line::startsWith);</span>
+    }
+
+    private String extractMethodName(String line) {
+        try {
+<span class="fc" id="L143">            int paren = line.indexOf('(');</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">            if (paren &lt;= 0) return null;</span>
+<span class="fc" id="L145">            String[] parts = line.substring(0, paren).trim().split(&quot;\\s+&quot;);</span>
+<span class="fc" id="L146">            return parts[parts.length - 1];</span>
+<span class="nc" id="L147">        } catch (Exception e) {</span>
+<span class="nc" id="L148">            return null;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
