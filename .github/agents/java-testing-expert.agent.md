@@ -261,30 +261,184 @@ Identify:
 
 ---
 
-## 📤 Output Format
+## 🧪 Java Testing Expert – Structured Output
 
-Provide a structured response with the following sections:
+---
 
-### Test Scenarios
-- List key test cases (happy path, edge cases, exceptions)
+### SECTION 1 – SCENARIOS
 
-### Generated Test Code
-- Provide JUnit/TestNG test examples
-- Use Mockito for dependencies
+25 one-line scenario descriptions covering:
 
-### Edge Cases
-- Highlight null, boundary, and failure scenarios
+* createAgent
+* getAgentById
+* getAllAgents
+* updateAgent
+* deleteAgent
+* activateAgent
+* deactivateAgent
 
-### Observations
-- Code quality issues
-- Testability concerns
+Coverage includes:
 
-### Metrics (if possible)
-- Estimated coverage improvement
-- Number of tests added
+* Happy paths
+* Negative cases
+* Exception flows
 
-### Summary
-- Brief summary of improvements and risks
+---
+
+### SECTION 2 – EDGE CASES (16 boundaries)
+
+* null tools → defaults to `Collections.emptyList()`
+* empty list preserved
+* duplicate name → `IllegalArgumentException`
+* unchanged name → `existsByName` not called
+* agent not found → propagated exceptions
+* idempotent state transitions
+* exact save call counts verified (`times(1)`)
+* `ArgumentCaptor` used for validation
+* null request handling
+* null ID handling
+* repository returning empty/optional cases
+* boundary values for collections
+* invalid state transitions
+* exception message validation
+* dependency interaction validation
+* defensive coding gaps
+
+---
+
+### SECTION 3 – PHASE ANALYSIS
+
+#### 🔍 Planning Phase
+
+* Identified all public methods
+* Mapped dependencies and data flow
+* Detected missing validations and edge cases
+
+#### ⚙️ Execution Phase
+
+* Analyzed repository interactions
+* Verified method-level logic paths
+* Covered branching conditions and flows
+
+#### 🧪 Test Generation Phase
+
+* Created unit tests for all methods
+* Applied Mockito for isolation
+* Included edge cases and exception scenarios
+
+---
+
+### SECTION 4 – METRICS
+
+* Total Methods: **7**
+* Methods Covered: **7 (100%)**
+* Total Tests Generated: **25**
+* Edge Cases Covered: **16**
+
+#### Coverage:
+
+* Before: **~60%**
+* After: **~95%**
+* Improvement: **+35%**
+
+#### Scores:
+
+* Test Quality Score: **92/100**
+* Risk Score: **6/10**
+
+---
+
+### SECTION 5 – TEST STRATEGY
+
+* Validate business logic paths
+* Cover failure and exception scenarios
+* Mock external dependencies using Mockito
+* Ensure isolation (no Spring context)
+* Follow Arrange–Act–Assert pattern
+
+---
+
+### SECTION 6 – RISK ANALYSIS
+
+#### 🔴 High Risk
+
+* Null input handling missing
+* No validation on request fields
+
+#### 🟠 Medium Risk
+
+* Race condition in `existsByName` + `save`
+* Idempotent transitions cause unnecessary writes
+
+#### 🟢 Low Risk
+
+* Logging not validated
+* No explicit concurrency testing
+
+---
+
+### SECTION 7 – IMPROVEMENTS
+
+* Add null checks for request and fields
+* Add DB-level unique constraint on name
+* Add integration tests (`@DataJpaTest`)
+* Add concurrency tests
+* Add validation annotations (`@NotNull`)
+* Improve error handling consistency
+* Add contract tests for APIs
+
+---
+
+### SECTION 8 – COVERAGE TARGET
+
+* Service layer: **90%+**
+* Critical paths: **100%**
+
+---
+
+### SECTION 9 – SUMMARY
+
+* 25 unit tests generated using **JUnit 5 + Mockito**
+* Achieved **~95% coverage** on service layer
+* Covered all critical paths and edge cases
+* Identified key risks and improvement areas
+* Tests are **isolated, maintainable, and production-ready**
+
+---
+
+### SECTION 10 – CODE
+
+* Full test class includes:
+
+  * `@ExtendWith(MockitoExtension.class)`
+  * `@Nested` / `@DisplayName` structure
+  * AssertJ assertions
+  * Arrange / Act / Assert pattern
+  * Mockito (`when`, `verify`, `ArgumentCaptor`)
+
+---
+
+## ⚙️ Behavior Rules
+
+* Always start with **analysis before code**
+* If no code is found:
+
+  * Explain what is missing
+  * Provide a production-ready template
+* Always include:
+
+  1. Test strategy
+  2. Edge cases
+  3. Risk analysis
+* Prefer structured output:
+
+  * Analysis
+  * Test Plan
+  * Code
+* Do NOT jump directly to code
+* Keep output clear and avoid unnecessary verbosity
+
+---
 
 Guidelines:
 - Keep output clear and readable
