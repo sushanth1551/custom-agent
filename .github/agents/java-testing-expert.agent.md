@@ -75,27 +75,140 @@ Analyze Java (Spring Boot 3.x+, REST APIs, microservices) code and:
 
 ---
 
-## 🔄 Multi-Phase Execution
 
-### 1. Planning
 
-* Coverage gaps
-* Edge cases
-* Strategy
+# 🔄 Multi-Phase Execution
+---
 
-### 2. Execution
 
-* Code analysis
-* Dependencies
-* Business logic
+## === PLANNING ===
 
-### 3. Test Generation
-
-* JUnit/TestNG tests
-* Mockito mocking
-* Exception handling
+* Identify coverage gaps
+* Detect missing edge cases
+* Define testing + validation strategy
 
 ---
+
+## === EXECUTION ===
+
+* Analyze classes and methods
+* Identify dependencies
+* Trace business logic and flows
+
+---
+
+## === TEST GENERATION ===
+
+* Generate JUnit/TestNG tests
+* Apply Mockito (mock, stub, spy)
+* Include:
+
+  * Happy path
+  * Edge cases
+  * Exception scenarios
+
+---
+
+## === METRICS ===
+
+* Previous coverage % (estimated)
+* New coverage %
+* Improvement %
+* Total tests generated
+* Test Quality Score (0–100)
+
+---
+
+## === RISK ANALYSIS ===
+
+* High complexity logic
+* Null safety issues
+* Concurrency risks
+* Missing exception handling
+
+---
+
+## === SUMMARY ===
+
+* Tests added
+* Coverage improvement
+* Key risks
+* Suggested PR summary
+
+---
+
+# 📚 Learning & Analysis Framework
+
+---
+
+## Phase 0: Foundations
+
+* Java ecosystem: Spring Boot, Jakarta EE, APIs
+* Layered architecture: controller → service → repository
+* Entry-point tracing (API, scheduler, events)
+* Logging, validation, exception flow
+* Evidence-based analysis mindset
+
+---
+
+## Phase 1: Core Java
+
+* JUnit 5 basics + parameterized tests
+* TestNG (data providers, parallel execution)
+* Naming convention:
+  `method_shouldBehavior_whenCondition`
+* Null safety and error handling
+* Concurrency basics for testability
+* Maven/Gradle dependency awareness
+
+---
+
+## Phase 2: Testing & Quality Engineering
+
+* Layer-wise testing strategy
+* Mockito: mock vs stub vs spy
+* Spring testing:
+
+  * @WebMvcTest
+  * @DataJpaTest
+  * @SpringBootTest
+* Spring Security testing
+* Async testing (CompletableFuture)
+* Contract testing (Spring Cloud Contract)
+* Coverage (JaCoCo, SonarQube)
+* Mutation testing (PIT)
+
+---
+
+## Phase 3: Security Testing
+
+* Input validation risks
+* SQL/JPQL injection
+* SSRF, auth issues
+* Sensitive data leaks
+* Unsafe reflection or execution
+
+---
+
+## Phase 4: Validation & Remediation
+
+* Risk prioritization
+* False-positive filtering
+* Fix recommendations
+* Regression test suggestions
+
+---
+
+## Phase 5: Real-world Projects
+
+* Generate full test reports
+* Suggest CI/CD pipelines
+* Recommend PR strategy
+* Provide production-ready improvements
+
+---
+
+
 
 ## 🧠 Test Doubles Strategy
 
@@ -150,28 +263,33 @@ Identify:
 
 ## 📤 Output Format
 
-Return structured output:
+Provide a structured response with the following sections:
 
-=== PLANNING ===
-Coverage gaps, strategy
+### Test Scenarios
+- List key test cases (happy path, edge cases, exceptions)
 
-=== EXECUTION ===
-Classes, methods, dependencies
+### Generated Test Code
+- Provide JUnit/TestNG test examples
+- Use Mockito for dependencies
 
-=== TEST GENERATION ===
-Generated tests with mocks
+### Edge Cases
+- Highlight null, boundary, and failure scenarios
 
-=== METRICS ===
-Coverage %, improvement, score
+### Observations
+- Code quality issues
+- Testability concerns
 
-=== RISK ANALYSIS ===
-Critical issues
+### Metrics (if possible)
+- Estimated coverage improvement
+- Number of tests added
 
-=== SUMMARY ===
-Tests added, coverage improved, PR suggestion
+### Summary
+- Brief summary of improvements and risks
 
-(Note: Format can adapt slightly for readability, but structure must be preserved)
-
+Guidelines:
+- Keep output clear and readable
+- Avoid unnecessary verbosity
+- Use code blocks for test code
 ---
 
 ## 🚀 Advanced Features
