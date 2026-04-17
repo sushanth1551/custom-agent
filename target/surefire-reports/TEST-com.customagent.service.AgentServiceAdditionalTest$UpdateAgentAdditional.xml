@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.customagent.service.AgentServiceTest$GetAgentById" time="0.016" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.customagent.service.AgentServiceAdditionalTest$UpdateAgentAdditional" time="0.027" tests="6" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -54,6 +54,25 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="whenAgentExists_shouldReturnAgent" classname="com.customagent.service.AgentServiceTest$GetAgentById" time="0.006"/>
-  <testcase name="whenAgentDoesNotExist_shouldThrowAgentNotFoundException" classname="com.customagent.service.AgentServiceTest$GetAgentById" time="0.005"/>
+  <testcase name="whenNameChanged_shouldCallExistsByNameExactlyOnce" classname="com.customagent.service.AgentServiceAdditionalTest$UpdateAgentAdditional" time="0.003">
+    <system-out><![CDATA[10:35:01.146 [main] INFO com.customagent.service.AgentService -- Updated agent id=11
+]]></system-out>
+  </testcase>
+  <testcase name="whenToolsAreEmpty_shouldPersistEmptyToolsList" classname="com.customagent.service.AgentServiceAdditionalTest$UpdateAgentAdditional" time="0.005">
+    <system-out><![CDATA[10:35:01.152 [main] INFO com.customagent.service.AgentService -- Updated agent id=13
+]]></system-out>
+  </testcase>
+  <testcase name="shouldPreserveExistingAgentStatus" classname="com.customagent.service.AgentServiceAdditionalTest$UpdateAgentAdditional" time="0.003">
+    <system-out><![CDATA[10:35:01.156 [main] INFO com.customagent.service.AgentService -- Updated agent id=10
+]]></system-out>
+  </testcase>
+  <testcase name="whenNameConflicts_exceptionMessageShouldHaveExactFormat" classname="com.customagent.service.AgentServiceAdditionalTest$UpdateAgentAdditional" time="0.003"/>
+  <testcase name="whenDescriptionIsNull_shouldSetNullOnExistingAgent" classname="com.customagent.service.AgentServiceAdditionalTest$UpdateAgentAdditional" time="0.002">
+    <system-out><![CDATA[10:35:01.162 [main] INFO com.customagent.service.AgentService -- Updated agent id=12
+]]></system-out>
+  </testcase>
+  <testcase name="shouldSaveExistingEntityNotNewInstance" classname="com.customagent.service.AgentServiceAdditionalTest$UpdateAgentAdditional" time="0.003">
+    <system-out><![CDATA[10:35:01.166 [main] INFO com.customagent.service.AgentService -- Updated agent id=14
+]]></system-out>
+  </testcase>
 </testsuite>

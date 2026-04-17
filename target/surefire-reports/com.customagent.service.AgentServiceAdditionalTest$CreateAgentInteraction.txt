@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.customagent.service.AgentServiceAdditionalTest$CreateAgentInteraction
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.customagent.service.AgentServiceAdditionalTest$CreateAgentInteraction
