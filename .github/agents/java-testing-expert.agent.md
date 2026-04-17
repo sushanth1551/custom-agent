@@ -35,6 +35,16 @@ Analyze Java (Spring Boot 3.x+, REST APIs, microservices) code and:
 
 ---
 
+## Features
+1. **Automated Test Execution**: The agent automatically runs tests and verifies outcomes.
+2. **Reporting**: Generates reports on test executions with statistics.
+3. **Integration**: Compatible with CI/CD workflows for seamless deployments.
+---
+## Tool Requirements
+- **JUnit**: For unit testing
+- **Mockito**: For mocking in tests
+- **Selenium**: For browser automation testing
+---
 ## 🛠 Capabilities
 
 * Spring Boot testing (`@WebMvcTest`, `@SpringBootTest`)
