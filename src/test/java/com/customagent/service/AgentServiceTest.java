@@ -1,3 +1,76 @@
+/*
+ * ============================================================
+ * SECTION 1 – SCENARIOS
+ * ============================================================
+ *  createAgent – unique name: should save agent and return it with ACTIVE status
+ *  createAgent – duplicate name: should throw IllegalArgumentException and never call save
+ *  createAgent – null tools: should default tools to empty list
+ *  createAgent – explicit empty tools list: should persist empty list
+ *
+ *  getAgentById – found: should return the matching agent
+ *  getAgentById – not found: should throw AgentNotFoundException with the id in the message
+ *
+ *  getAllAgents – multiple agents: should return all agents in order
+ *  getAllAgents – empty repository: should return empty list
+ *  getAllAgents – single agent: should return singleton list
+ *
+ *  updateAgent – name unchanged: should update description/tools without calling existsByName
+ *  updateAgent – new unique name: should update name and return saved entity
+ *  updateAgent – new conflicting name: should throw IllegalArgumentException and never call save
+ *  updateAgent – agent not found: should throw AgentNotFoundException
+ *  updateAgent – null tools: should default tools to empty list
+ *  updateAgent – all fields: ArgumentCaptor confirms every field written to repository
+ *
+ *  deleteAgent – agent exists: should call repository.delete with the correct entity
+ *  deleteAgent – agent not found: should throw AgentNotFoundException and never call delete
+ *
+ *  activateAgent – INACTIVE agent: should set status ACTIVE and save
+ *  activateAgent – agent not found: should throw AgentNotFoundException
+ *  activateAgent – already ACTIVE (idempotent): should still set ACTIVE and save
+ *  activateAgent – save call count: should call repository.save exactly once
+ *
+ *  deactivateAgent – ACTIVE agent: should set status INACTIVE and save
+ *  deactivateAgent – agent not found: should throw AgentNotFoundException
+ *  deactivateAgent – already INACTIVE (idempotent): should still set INACTIVE and save
+ *  deactivateAgent – save call count: should call repository.save exactly once
+ */
+
+/*
+ * ============================================================
+ * SECTION 2 – EDGE CASES
+ * ============================================================
+ *  null tools on create  – guarded by ternary; must produce Collections.emptyList()
+ *  empty tools on create – explicit List.of() must be stored as-is (not replaced)
+ *  null tools on update  – same guard in updateAgent; must produce empty list
+ *  duplicate name on create – existsByName returns true before save; save must not be called
+ *  duplicate name on update – only checked when name actually changes; same-name skips the check
+ *  name unchanged on update – existsByName must NEVER be called (verify(never()))
+ *  agent-not-found in getAgentById  – propagates to createAgent/update/delete/activate/deactivate
+ *  agent-not-found in deleteAgent   – delete must not be called on the repository
+ *  agent-not-found in activateAgent / deactivateAgent – exception surfaces cleanly
+ *  idempotent activate  – calling activateAgent on an already-ACTIVE agent still saves
+ *  idempotent deactivate – calling deactivateAgent on an already-INACTIVE agent still saves
+ *  empty repository in getAllAgents – returns empty list, not null
+ *  single-element list in getAllAgents – boundary between empty and multi-element
+ *  exact save-call-count for activate / deactivate – verified with times(1)
+ *  ArgumentCaptor on createAgent – status, name, and tools all set correctly on persisted object
+ *  ArgumentCaptor on updateAgent – all three mutable fields written before repository.save
+ */
+
+/*
+ * ============================================================
+ * SECTION 3 – SUMMARY
+ * ============================================================
+ *  Strategy: pure unit tests using JUnit 5 + Mockito (@ExtendWith(MockitoExtension.class)).
+ *  AgentRepository is fully mocked so no Spring context, database, or I/O is involved,
+ *  keeping every test sub-millisecond and completely isolated.
+ *  Coverage: all seven public methods of AgentService are exercised across 25 test methods
+ *  grouped in @Nested classes; estimated line/branch coverage >= 95 % on AgentService itself.
+ *  NOT covered: @Transactional / @Transactional(readOnly) semantics (need a Spring integration
+ *  test), Lombok-generated code (@Builder, @Getter/@Setter), JPA persistence behaviour,
+ *  constraint-validation annotations on AgentRequest, and logging side-effects.
+ */
+
 package com.customagent.service;
 
 import com.customagent.exception.AgentNotFoundException;
@@ -22,6 +95,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+
+// ============================================================
+// SECTION 4 – CODE
+// ============================================================
 
 /**
  * Unit tests for {@link AgentService}.
