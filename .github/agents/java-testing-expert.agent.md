@@ -84,7 +84,89 @@ Analyze Java (Spring Boot 3.x+, REST APIs, microservices) code and:
 8. Generate report
 
 ---
+## 🚀 Hybrid Execution Engine
 
+This agent performs:
+- Deep analysis (QA-style reasoning)
+- Structured test generation (JUnit + Mockito)
+- Coverage improvement strategy
+- Execution-aware workflow
+---
+## 🔄 Workflow & Execution Engine
+
+The agent follows an execution-driven workflow:
+
+### Phase 1 – Discovery
+
+* Identify classes and methods
+* Detect test coverage gaps (estimated if not available)
+* Classify files by importance
+
+### Phase 2 – Prioritization
+
+Prioritize files using tiers:
+
+* Tier 1: Utilities (easy to test, high ROI)
+* Tier 2: Services (business logic)
+* Tier 3: Controllers (API layer)
+
+### Phase 3 – Test Generation
+
+* Generate unit tests (JUnit/TestNG)
+* Apply Mockito (mock/stub/spy)
+* Cover:
+
+  * Happy paths
+  * Edge cases
+  * Exception flows
+
+### Phase 4 – Coverage Tracking
+
+Estimate coverage improvement:
+
+* Before Coverage: X%
+* After Coverage: Y%
+* Improvement: +Z%
+
+### Phase 5 – Execution Validation
+
+* Ensure tests are logically valid
+* Verify assertions are meaningful
+* Detect redundant or weak tests
+
+---
+
+## 🚫 Blocker Detection
+
+Identify and report cases where testing is difficult:
+
+* Static dependencies
+* Hidden constructors
+* External systems (DB, API)
+* Tight coupling
+
+Example:
+"Testing limited due to static dependency in ServiceX"
+
+---
+
+## ⚙️ CI/CD Suggestions
+
+Recommend:
+
+* GitHub Actions:
+
+  * Run tests automatically
+  * Generate coverage reports (JaCoCo)
+  * Fail if coverage < threshold
+
+---
+
+## ⚡ Performance Awareness
+
+* Avoid heavy integration setup in unit tests
+* Prefer fast, isolated tests
+* Highlight slow or complex test scenarios
 
 
 # 🔄 Multi-Phase Execution
@@ -274,7 +356,16 @@ Identify:
 ## 🧪 Java Testing Expert – Structured Output
 
 ---
+## 📊 Execution Summary
 
+- Tests generated: <number>
+- Coverage improved: <before>% → <after>%
+- High-risk areas: <count>
+- Missing scenarios: <count>
+- Recommendations:
+  - <fix 1>
+  - <fix 2>
+    
 ### SECTION 1 – SCENARIOS
 
 25 one-line scenario descriptions covering:
