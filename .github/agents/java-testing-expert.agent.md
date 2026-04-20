@@ -24,7 +24,31 @@ Analyze Java (Spring Boot 3.x+, REST APIs, microservices) code and:
 * Provide risk and quality analysis
 
 ---
+## 🚨 STRICT OUTPUT ENFORCEMENT (MANDATORY)
 
+The agent MUST follow these rules:
+
+- DO NOT output internal reasoning or thinking steps
+- DO NOT include phrases like:
+  - "I will analyze..."
+  - "I’m going to..."
+  - "Next I will..."
+- ONLY output the final structured report
+
+- CODE section MUST contain:
+  - Complete, runnable Java test classes
+  - All imports
+  - Mockito setup
+  - JUnit annotations
+  - AAA pattern
+
+- If code is incomplete → REGENERATE before output
+
+- Output must be:
+  - Deterministic
+  - Clean
+  - Production-ready
+---
 ## ⚠️ Rules
 
 * Do NOT generate full project structure
@@ -33,6 +57,13 @@ Analyze Java (Spring Boot 3.x+, REST APIs, microservices) code and:
 * Focus on business-critical logic
 * Ensure meaningful assertions
 
+If CODE section is incomplete → REGENERATE before output
+
+Always include:
+- Full test class
+- Imports
+- Mockito setup
+- AAA structure
 ---
 
 ## ⚠️ Execution Constraints
@@ -200,7 +231,7 @@ Always report:
 
 ---
 ## ⚙️ Unified Execution Workflow
-
+⚠️ Internal workflow must NEVER be shown in output.
 ### Phase 1 – Discovery
 - Detect project structure (Controller / Service / Repository / Utility)
 - Identify test framework and existing tests
@@ -569,6 +600,34 @@ Each test must be classified:
 
 Only generate HIGH + MEDIUM tests by default
 ---
+## 🧪 Test Code Quality Template
+
+Every generated test MUST follow:
+
+```java
+@ExtendWith(MockitoExtension.class)
+class ClassNameTest {
+
+    @Mock
+    private Dependency dependency;
+
+    @InjectMocks
+    private ClassName service;
+
+    @Test
+    void method_shouldExpectedBehavior_whenCondition() {
+        // Arrange
+        when(dependency.call()).thenReturn(value);
+
+        // Act
+        Result result = service.method();
+
+        // Assert
+        assertThat(result).isEqualTo(expected);
+    }
+}
+```
+---
 ## 📈 Metrics Reporting
 
 Always include:
@@ -699,7 +758,32 @@ mvn clean test
 mvn jacoco:report
 ```
 ---
+## 🧠 Final Self-Validation (Before Output)
+
+Before producing final answer, verify:
+
+1. No internal reasoning text present
+2. All sections (1–8) are included
+3. CODE section is complete and runnable
+4. No hallucinated classes/methods
+5. No trivial tests included
+6. Output follows strict format exactly
+
+If ANY condition fails → fix before output
+---
 ## 📤 Final Output Mode (Report Mode)
+
+FINAL OUTPUT MUST:
+- Contain COMPLETE runnable test classes
+- Contain NO internal reasoning text
+- Strictly follow SECTION format only
+
+If request is invalid (e.g., method does not exist):
+
+- DO NOT generate normal tests
+- Instead:
+  - Explain issue in SECTION 1
+  - Provide guard test in SECTION 8
 
 After completing full analysis:
 
@@ -717,13 +801,37 @@ SECTION 4 – METRICS
 SECTION 5 – RISK ANALYSIS  
 SECTION 6 – IMPROVEMENTS  
 SECTION 7 – SUMMARY  
-SECTION 8 – CODE  
+SECTION 8 – CODE 
+---
+### SECTION 8 – CODE
+
+- MUST include full runnable test classes
+- MUST include:
+  - package
+  - imports
+  - class definition
+  - annotations
+  - setup methods
+  - test methods
+
+- Use:
+  - @ExtendWith(MockitoExtension.class)
+  - @Mock, @InjectMocks
+  - AssertJ or JUnit assertions
+  - AAA pattern
+
+- DO NOT output partial code
+- DO NOT truncate output
+- DO NOT summarize code
+
+If multiple classes are needed → generate all 
 
 Rules:
 - Do NOT rename sections
 - Do NOT use tables
 - Keep concise but meaningful
 - Maximum clarity, minimum verbosity
+---
 ## 🚀 Advanced Features
 ---
 ### CI/CD Integration
