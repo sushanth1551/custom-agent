@@ -81,11 +81,11 @@ import java.util.*;
 <span class="fc bfc" id="L81" title="All 2 branches covered.">        for (int i = 0; i &lt; lines.length; i++) {</span>
 <span class="fc" id="L82">            String trimmed = lines[i].trim();</span>
 <span class="fc bfc" id="L83" title="All 2 branches covered.">            if (isPublicMethodDeclaration(trimmed)) {</span>
-<span class="pc bpc" id="L84" title="1 of 2 branches missed.">                boolean hasAnnotation = (i &gt; 0)</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">                boolean hasAnnotation = (i &gt; 0)</span>
 <span class="fc bfc" id="L85" title="All 2 branches covered.">                        &amp;&amp; hasTestAnnotation(lines[i - 1].trim());</span>
 <span class="fc bfc" id="L86" title="All 2 branches covered.">                if (!hasAnnotation) {</span>
 <span class="fc" id="L87">                    String name = extractMethodName(trimmed);</span>
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                    if (name != null) {</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">                    if (name != null) {</span>
 <span class="fc" id="L89">                        uncovered.add(name);</span>
                     }
                 }
@@ -128,9 +128,9 @@ import java.util.*;
 <span class="fc bfc" id="L128" title="All 2 branches covered.">        return line.contains(&quot;public &quot;)</span>
 <span class="fc bfc" id="L129" title="All 2 branches covered.">                &amp;&amp; line.contains(&quot;(&quot;)</span>
 <span class="fc bfc" id="L130" title="All 2 branches covered.">                &amp;&amp; !line.startsWith(&quot;//&quot;)</span>
-<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                &amp;&amp; !line.startsWith(&quot;*&quot;)</span>
-<span class="pc bpc" id="L132" title="1 of 2 branches missed.">                &amp;&amp; !line.startsWith(&quot;/*&quot;)</span>
-<span class="pc bpc" id="L133" title="1 of 2 branches missed.">                &amp;&amp; !line.contains(&quot;class &quot;)</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">                &amp;&amp; !line.startsWith(&quot;*&quot;)</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">                &amp;&amp; !line.startsWith(&quot;/*&quot;)</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">                &amp;&amp; !line.contains(&quot;class &quot;)</span>
 <span class="fc bfc" id="L134" title="All 2 branches covered.">                &amp;&amp; !line.contains(&quot;interface &quot;);</span>
     }
 
@@ -141,7 +141,7 @@ import java.util.*;
     private String extractMethodName(String line) {
         try {
 <span class="fc" id="L143">            int paren = line.indexOf('(');</span>
-<span class="pc bpc" id="L144" title="1 of 2 branches missed.">            if (paren &lt;= 0) return null;</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">            if (paren &lt;= 0) return null;</span>
 <span class="fc" id="L145">            String[] parts = line.substring(0, paren).trim().split(&quot;\\s+&quot;);</span>
 <span class="fc" id="L146">            return parts[parts.length - 1];</span>
 <span class="nc" id="L147">        } catch (Exception e) {</span>

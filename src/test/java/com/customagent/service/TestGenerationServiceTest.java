@@ -333,6 +333,94 @@ class TestGenerationServiceTest {
 
             assertThat(uncovered).doesNotContain("Runnable");
         }
+
+        // ── Branch coverage for isPublicMethodDeclaration / extractMethodName ──
+
+        @Test
+        @DisplayName("public method on the very first line (i=0) should be listed as uncovered")
+        void withPublicMethodAtLineZero_shouldBeUncovered() {
+            // When the declaration is the first line, i==0, so (i > 0) short-circuits to false
+            // and no preceding annotation can exist → method must be in uncovered list.
+            String source = "public void topLevelMethod() {}";
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered).contains("topLevelMethod");
+        }
+
+        @Test
+        @DisplayName("javadoc body line starting with '*' that looks like a method should be excluded")
+        void withJavadocBodyLineStar_shouldBeExcluded() {
+            // A line such as " * public void doSomething()" is a Javadoc body line.
+            // isPublicMethodDeclaration filters it because trimmed() starts with '*'.
+            String source = String.join("\n",
+                    "class Service {",
+                    "* public void doSomething() {}",
+                    "    public void realMethod() {}",
+                    "}");
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered)
+                    .contains("realMethod")
+                    .doesNotContain("doSomething");
+        }
+
+        @Test
+        @DisplayName("block comment opener starting with '/*' that looks like a method should be excluded")
+        void withBlockCommentOpener_shouldBeExcluded() {
+            // A line like "/* public void doSomething()" is a block-comment opener.
+            // isPublicMethodDeclaration filters it because trimmed() starts with '/*'.
+            String source = String.join("\n",
+                    "class Service {",
+                    "/* public void doSomething() {} */",
+                    "    public void realMethod() {}",
+                    "}");
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered)
+                    .contains("realMethod")
+                    .doesNotContain("doSomething");
+        }
+
+        @Test
+        @DisplayName("line containing 'class ' keyword with parenthesis should not be counted as a method")
+        void withClassDeclarationContainingParenthesis_shouldBeExcluded() {
+            // A line like "public class Foo() {" passes the first five guards
+            // (has "public ", has "(", doesn't start with "//", "*", "/*") but is
+            // filtered by the "class " check, so "Foo" must not appear in uncovered list.
+            String source = String.join("\n",
+                    "public class Foo() {",
+                    "    public void realMethod() {}",
+                    "}");
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            assertThat(uncovered)
+                    .contains("realMethod")
+                    .doesNotContain("Foo");
+        }
+
+        @Test
+        @DisplayName("public method signature with '(' as first character should be silently skipped")
+        void withOpenParenAsFirstChar_extractMethodNameReturnsNull() {
+            // When '(' is at position 0, extractMethodName returns null (paren <= 0).
+            // The method is filtered from the uncovered list; no exception must be thrown.
+            String source = String.join("\n",
+                    "class Foo {",
+                    "(public void weirdLine() {}",
+                    "    public void normalMethod() {}",
+                    "}");
+
+            List<String> uncovered = service.identifyUncoveredMethods(source);
+
+            // The "weird" line must NOT appear (extractMethodName returned null).
+            // The normal method must still be reported as uncovered.
+            assertThat(uncovered)
+                    .contains("normalMethod")
+                    .doesNotContain("weirdLine");
+        }
     }
 
     // =========================================================================
