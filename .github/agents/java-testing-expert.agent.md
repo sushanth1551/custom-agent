@@ -84,7 +84,20 @@ Avoid:
 - Avoid generating low-value tests
 - Focus on maximum coverage with minimal tests
 ---
+## 🚫 Low-Value Coverage Rule
 
+If uncovered code belongs to:
+- Lombok-generated methods (@Data, @Builder, etc.)
+- DTOs / Entities
+- equals(), hashCode(), toString()
+- Constructors without logic
+
+Then:
+
+- DO NOT generate tests
+- Explicitly report them as "Low-Value Coverage Gaps"
+- Recommend exclusion via JaCoCo/SonarQube instead
+---
 
 
 ## 🧪 Test Strategy
