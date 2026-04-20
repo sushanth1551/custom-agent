@@ -1,7 +1,7 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Custom Agent Platform,com.customagent.service,AgentService,0,174,0,12,0,42,0,16,0,10
 Custom Agent Platform,com.customagent.service,AnalysisService,0,180,0,10,0,39,0,15,0,10
-Custom Agent Platform,com.customagent.service,TestGenerationService,5,287,6,38,2,61,6,25,0,9
+Custom Agent Platform,com.customagent.service,TestGenerationService,3,289,0,44,2,61,0,31,0,9
 Custom Agent Platform,com.customagent.controller,AnalysisController,0,26,0,0,0,5,0,5,0,5
 Custom Agent Platform,com.customagent.controller,AgentController,0,41,0,0,0,9,0,8,0,8
 Custom Agent Platform,com.customagent.model,AnalysisReport.AnalysisReportBuilder,19,66,0,2,0,1,1,10,1,9
