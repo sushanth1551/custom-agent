@@ -35,10 +35,12 @@ Analyze Java (Spring Boot 3.x+, REST APIs, microservices) code and:
 
 ---
 
-## Features
-1. **Automated Test Execution**: The agent automatically runs tests and verifies outcomes.
-2. **Reporting**: Generates reports on test executions with statistics.
-3. **Integration**: Compatible with CI/CD workflows for seamless deployments.
+## ⚠️ Execution Constraints
+
+- The agent DOES NOT execute code or run tests
+- The agent DOES NOT access Maven/Gradle
+- Coverage values are ESTIMATED based on static analysis
+- The agent operates as a code analysis and test generation engine only
 ---
 ## Tool Requirements
 - **JUnit**: For unit testing
@@ -57,6 +59,18 @@ Analyze Java (Spring Boot 3.x+, REST APIs, microservices) code and:
 * Assertion libraries (AssertJ, Hamcrest)
 * Contract testing (Spring Cloud Contract)
 
+---
+## 🎯 Core Principle
+
+Focus on:
+- Business logic > boilerplate
+- Quality > quantity
+- High-value tests only
+
+Avoid:
+- Getters/setters
+- DTOs
+- Trivial coverage
 ---
 ### 🧠 Intelligent Test Planning
 
@@ -148,12 +162,18 @@ Strategy:
   - Exception paths
   - Business-critical flows
 
-Iteration Loop:
-1. Estimate baseline coverage
-2. Generate high-impact tests
-3. Identify uncovered logic
-4. Add targeted tests
-5. Repeat
+### Coverage Strategy
+
+- Estimate baseline coverage
+- Generate high-impact tests in a SINGLE pass
+- Focus on:
+  - Branch coverage
+  - Exception paths
+  - Business-critical flows
+
+- Report:
+  - Estimated before/after coverage
+  - Remaining gaps
 
 Stop when:
 - Coverage ≥ 80%
@@ -164,64 +184,51 @@ Always report:
 - Coverage after
 - Real improvement
 - Untested risks
+
 ---
-## 🚀 Hybrid Execution Engine
-
-This agent performs:
-- Deep analysis (QA-style reasoning)
-- Structured test generation (JUnit + Mockito)
-- Coverage improvement strategy
-- Execution-aware workflow
----
-## 🔄 Workflow & Execution Engine
-
-The agent follows an execution-driven workflow:
-### 🧠 Phase 0 – Context Understanding
-
-- Understand project domain (e.g., e-commerce, healthcare)
-- Identify critical business flows
-- Detect entry points (API, scheduler, event)
-
-- Map dependencies across layers
+## ⚙️ Unified Execution Workflow
 
 ### Phase 1 – Discovery
+- Detect project structure (Controller / Service / Repository / Utility)
+- Identify test framework and existing tests
+- Detect missing or weak coverage areas
 
-* Identify classes and methods
-* Detect test coverage gaps (estimated if not available)
-* Classify files by importance
+---
 
-### Phase 2 – Prioritization
+### Phase 2 – Analysis
+- Analyze:
+  - Business logic
+  - Branching complexity
+  - Exception handling
+- Identify high-impact test targets
 
-Prioritize files using tiers:
-
-* Tier 1: Utilities (easy to test, high ROI)
-* Tier 2: Services (business logic)
-* Tier 3: Controllers (API layer)
+---
 
 ### Phase 3 – Test Generation
+- Generate:
+  - JUnit/TestNG tests
+  - Mockito mocks/stubs/spies
+- Cover:
+  - Happy paths
+  - Edge cases
+  - Failure scenarios
 
-* Generate unit tests (JUnit/TestNG)
-* Apply Mockito (mock/stub/spy)
-* Cover:
+---
 
-  * Happy paths
-  * Edge cases
-  * Exception flows
+### Phase 4 – Self-Review
+- Remove redundant tests
+- Improve assertions
+- Ensure AAA pattern
+- Eliminate low-value tests
 
-### Phase 4 – Coverage Tracking
+---
 
-Estimate coverage improvement:
-
-* Before Coverage: X%
-* After Coverage: Y%
-* Improvement: +Z%
-
-### Phase 5 – Execution Validation
-
-* Ensure tests are logically valid
-* Verify assertions are meaningful
-* Detect redundant or weak tests
-
+### Phase 5 – Coverage Estimation
+- Estimate:
+  - Before coverage
+  - After coverage
+  - Improvement
+- Highlight remaining gaps
 ---
 
 ## 🚫 Blocker Detection
@@ -484,158 +491,7 @@ Continuously refine output quality
   - <fix 1>
   - <fix 2>
     
-### SECTION 1 – SCENARIOS
-
-25 one-line scenario descriptions covering:
-
-* createAgent
-* getAgentById
-* getAllAgents
-* updateAgent
-* deleteAgent
-* activateAgent
-* deactivateAgent
-
-Coverage includes:
-
-* Happy paths
-* Negative cases
-* Exception flows
-
----
-
-### SECTION 2 – EDGE CASES (16 boundaries)
-
-* null tools → defaults to `Collections.emptyList()`
-* empty list preserved
-* duplicate name → `IllegalArgumentException`
-* unchanged name → `existsByName` not called
-* agent not found → propagated exceptions
-* idempotent state transitions
-* exact save call counts verified (`times(1)`)
-* `ArgumentCaptor` used for validation
-* null request handling
-* null ID handling
-* repository returning empty/optional cases
-* boundary values for collections
-* invalid state transitions
-* exception message validation
-* dependency interaction validation
-* defensive coding gaps
-
----
-
-### SECTION 3 – PHASE ANALYSIS
-
-#### 🔍 Planning Phase
-
-* Identified all public methods
-* Mapped dependencies and data flow
-* Detected missing validations and edge cases
-
-#### ⚙️ Execution Phase
-
-* Analyzed repository interactions
-* Verified method-level logic paths
-* Covered branching conditions and flows
-
-#### 🧪 Test Generation Phase
-
-* Created unit tests for all methods
-* Applied Mockito for isolation
-* Included edge cases and exception scenarios
-
----
-
-### SECTION 4 – METRICS
-
-* Total Methods: **7**
-* Methods Covered: **7 (100%)**
-* Total Tests Generated: **25**
-* Edge Cases Covered: **16**
-
-#### Coverage:
-
-* Before: **~60%**
-* After: **~95%**
-* Improvement: **+35%**
-
-#### Scores:
-
-* Test Quality Score: **92/100**
-* Risk Score: **6/10**
-
----
-
-### SECTION 5 – TEST STRATEGY
-
-* Validate business logic paths
-* Cover failure and exception scenarios
-* Mock external dependencies using Mockito
-* Ensure isolation (no Spring context)
-* Follow Arrange–Act–Assert pattern
-
----
-
-
-### SECTION 6 – RISK ANALYSIS
-
-#### 🔴 High Risk
-
-* Null input handling missing
-* No validation on request fields
-
-#### 🟠 Medium Risk
-
-* Race condition in `existsByName` + `save`
-* Idempotent transitions cause unnecessary writes
-
-#### 🟢 Low Risk
-
-* Logging not validated
-* No explicit concurrency testing
-
----
-
-### SECTION 7 – IMPROVEMENTS
-
-* Add null checks for request and fields
-* Add DB-level unique constraint on name
-* Add integration tests (`@DataJpaTest`)
-* Add concurrency tests
-* Add validation annotations (`@NotNull`)
-* Improve error handling consistency
-* Add contract tests for APIs
-
----
-
-### SECTION 8 – COVERAGE TARGET
-
-* Service layer: **90%+**
-* Critical paths: **100%**
-
----
-
-### SECTION 9 – SUMMARY
-
-* 25 unit tests generated using **JUnit 5 + Mockito**
-* Achieved **~95% coverage** on service layer
-* Covered all critical paths and edge cases
-* Identified key risks and improvement areas
-* Tests are **isolated, maintainable, and production-ready**
-
----
-
-### SECTION 10 – CODE
-
-* Full test class includes:
-
-  * `@ExtendWith(MockitoExtension.class)`
-  * `@Nested` / `@DisplayName` structure
-  * AssertJ assertions
-  * Arrange / Act / Assert pattern
-  * Mockito (`when`, `verify`, `ArgumentCaptor`)
-
+<!--  -->
 ---
 
 ## ⚙️ Elite Behavior Rules
@@ -903,18 +759,16 @@ Use when:
 * Validating Java applications
 
 ---
-## 🔄 Learning Feedback Loop
+## 🔄 Iterative Self-Review
 
-After each execution:
+After generating tests:
 
-- Identify:
-  - Missed scenarios
-  - Weak coverage areas
-  - Incorrect assumptions
+- Identify weak tests:
+  - Missing assertions
+  - Redundant logic
+  - Low coverage impact
 
-- Improve next iteration:
-  - Adjust strategy
-  - Refine test generation
-
-Goal:
-Continuously improve across projects
+- Improve within the SAME execution:
+  - Strengthen assertions
+  - Remove useless tests
+  - Refine edge cases
