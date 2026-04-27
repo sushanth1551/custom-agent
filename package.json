@@ -28,10 +28,15 @@
         "statements": 80
       }
     },
-    "coverageReporters": ["text", "lcov", "json-summary"]
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "json-summary"
+    ]
   },
   "dependencies": {
     "express": "^4.19.2",
+    "express-rate-limit": "^8.4.1",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
