@@ -1,0 +1,46 @@
+{
+  "name": "custom-agent",
+  "version": "1.0.0",
+  "description": "Custom Agent Platform - JavaScript layer",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --coverage --ci --forceExit"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/src/test/**/*.test.js",
+      "**/src/test/**/*.spec.js",
+      "**/__tests__/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/test/**",
+      "!src/app.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    },
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "json-summary"
+    ]
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.4.1",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
