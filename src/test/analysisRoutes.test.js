@@ -250,6 +250,50 @@ describe('GET /api/analysis/agent/:agentId', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+describe('GET /api/analysis/agent/:agentId - error path', () => {
+  it('should return 500 when getReportsByAgentId throws an unexpected error', async () => {
+    // Arrange
+    const svc = buildMockService({
+      getReportsByAgentId: jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      }),
+    });
+    const app = buildApp(svc);
+
+    // Act
+    const res = await request(app)
+      .get('/api/analysis/agent/1')
+      .set('Authorization', `Bearer ${validToken()}`);
+
+    // Assert
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('GET /api/analysis/status/:status - error path', () => {
+  it('should return 500 when getReportsByStatus throws an unexpected error', async () => {
+    // Arrange
+    const svc = buildMockService({
+      getReportsByStatus: jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      }),
+    });
+    const app = buildApp(svc);
+
+    // Act
+    const res = await request(app)
+      .get('/api/analysis/status/pending')
+      .set('Authorization', `Bearer ${validToken()}`);
+
+    // Assert
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 describe('GET /api/analysis/status/:status', () => {
   it('should return 200 and reports filtered by status', async () => {
     // Arrange

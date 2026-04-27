@@ -310,3 +310,21 @@ describe('AnalysisService — failAnalysis', () => {
     );
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('resetIdCounter', () => {
+  it('should reset id counter to 1 when called without argument (default param)', () => {
+    // Arrange — advance counter past 1
+    resetIdCounter(50);
+    // Act — call with no argument, default start = 1
+    resetIdCounter();
+    const { service } = makeService([], [ACTIVE_AGENT]);
+
+    // Assert — next created report gets id 1
+    const result = service.triggerAnalysis({
+      repositoryUrl: 'https://github.com/test/reset',
+      agentId: 1,
+    });
+    expect(result.id).toBe(1);
+  });
+});

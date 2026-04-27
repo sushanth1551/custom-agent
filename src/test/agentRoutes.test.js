@@ -309,6 +309,51 @@ describe('DELETE /api/agents/:id', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+describe('GET /api/agents - error path', () => {
+  it('should return 500 when getAllAgents throws an unexpected error', async () => {
+    // Arrange
+    const svc = buildMockService({
+      getAllAgents: jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      }),
+    });
+    const app = buildApp(svc);
+
+    // Act
+    const res = await request(app)
+      .get('/api/agents')
+      .set('Authorization', `Bearer ${userToken()}`);
+
+    // Assert
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('PUT /api/agents/:id - error path', () => {
+  it('should return 500 when updateAgent throws an unexpected error', async () => {
+    // Arrange
+    const svc = buildMockService({
+      updateAgent: jest.fn().mockImplementation(() => {
+        throw new Error('Unexpected internal error');
+      }),
+    });
+    const app = buildApp(svc);
+
+    // Act
+    const res = await request(app)
+      .put('/api/agents/1')
+      .set('Authorization', `Bearer ${adminToken()}`)
+      .send({ name: 'NewName' });
+
+    // Assert
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 describe('PATCH /api/agents/:id/activate', () => {
   it('should return 200 and ACTIVE agent for admin', async () => {
     // Arrange
@@ -325,6 +370,25 @@ describe('PATCH /api/agents/:id/activate', () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe(AgentStatus.ACTIVE);
     expect(svc.activateAgent).toHaveBeenCalledWith(1);
+  });
+
+  it('should return 404 when activateAgent throws agent not found', async () => {
+    // Arrange
+    const svc = buildMockService({
+      activateAgent: jest.fn().mockImplementation(() => {
+        throw new Error('Agent not found with id: 999');
+      }),
+    });
+    const app = buildApp(svc);
+
+    // Act
+    const res = await request(app)
+      .patch('/api/agents/999/activate')
+      .set('Authorization', `Bearer ${adminToken()}`);
+
+    // Assert
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('NOT_FOUND');
   });
 });
 
@@ -345,5 +409,24 @@ describe('PATCH /api/agents/:id/deactivate', () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe(AgentStatus.INACTIVE);
     expect(svc.deactivateAgent).toHaveBeenCalledWith(1);
+  });
+
+  it('should return 404 when deactivateAgent throws agent not found', async () => {
+    // Arrange
+    const svc = buildMockService({
+      deactivateAgent: jest.fn().mockImplementation(() => {
+        throw new Error('Agent not found with id: 999');
+      }),
+    });
+    const app = buildApp(svc);
+
+    // Act
+    const res = await request(app)
+      .patch('/api/agents/999/deactivate')
+      .set('Authorization', `Bearer ${adminToken()}`);
+
+    // Assert
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('NOT_FOUND');
   });
 });

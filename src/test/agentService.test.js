@@ -94,6 +94,17 @@ describe('AgentService — createAgent', () => {
     expect(result.tools).toEqual([]);
   });
 
+  it('should default description to null when description is not provided', () => {
+    // Arrange
+    const request = makeValidRequest({ description: undefined });
+
+    // Act
+    const result = service.createAgent(request);
+
+    // Assert
+    expect(result.description).toBeNull();
+  });
+
   it('should trim whitespace from agent name', () => {
     // Arrange
     const request = makeValidRequest({ name: '  SpacedName  ' });
@@ -338,5 +349,21 @@ describe('AgentService — activateAgent / deactivateAgent', () => {
 
   it('deactivateAgent should throw when agent not found', () => {
     expect(() => service.deactivateAgent(999)).toThrow('Agent not found with id: 999');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('resetIdCounter', () => {
+  it('should reset id counter to 1 when called without argument (default param)', () => {
+    // Arrange — advance counter past 1
+    resetIdCounter(50);
+    // Act — call with no argument, default start = 1
+    resetIdCounter();
+    const repo    = makeRepository();
+    const service = createAgentService(repo);
+
+    // Assert — next created agent gets id 1
+    const result = service.createAgent({ name: 'AfterReset' });
+    expect(result.id).toBe(1);
   });
 });
